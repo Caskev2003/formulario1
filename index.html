@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluación de Desempeño del Gerente</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --primary: #6d28d9;
+      --primary-dark: #5b21b6;
+      --primary-soft: #ede9fe;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #15803d;
+      --warning: #b45309;
+      --danger: #b91c1c;
+      --info: #0369a1;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #ede9fe 0%, var(--bg) 220px);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1320px, calc(100% - 32px));
+      margin: 28px auto 60px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .hero {
+      border-top: 12px solid var(--primary);
+      padding: 28px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(30px, 5vw, 48px);
+      letter-spacing: .5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 6px 0;
+    }
+
+    .section-header {
+      background: linear-gradient(90deg, var(--primary), #7c3aed);
+      color: #fff;
+      font-weight: 700;
+      padding: 16px 22px;
+      font-size: 22px;
+    }
+
+    .section-body {
+      padding: 22px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    @media (max-width: 1100px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 780px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 14px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      outline: none;
+      font-size: 15px;
+      background: #fff;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(109, 40, 217, .12);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .info {
+      border: 1px solid #ddd6fe;
+      background: #faf5ff;
+      color: #4c1d95;
+      border-radius: 14px;
+      padding: 15px 16px;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    .auth-box,
+    .toolbar,
+    .selector-row,
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .user-badge {
+      background: #f5f3ff;
+      color: #4c1d95;
+      border: 1px solid #ddd6fe;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+      font-size: 15px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .question {
+      padding: 18px 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 14px;
+      background: #fcfcff;
+    }
+
+    .question-title {
+      font-weight: 700;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .scale-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(60px, 1fr));
+      gap: 8px;
+      align-items: center;
+    }
+
+    .scale-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(120px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .scale-option {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      background: #fff;
+      transition: .2s ease;
+    }
+
+    .scale-option:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.05);
+    }
+
+    .scale-option input {
+      transform: scale(1.15);
+      margin-bottom: 8px;
+    }
+
+    .scale-option small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .scale-option.bad {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .scale-option.medium {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .scale-option.good {
+      background: #ecfdf5;
+      border-color: #86efac;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .status {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-weight: 700;
+      display: none;
+    }
+
+    .status.show { display: block; }
+    .status.success { background: #dcfce7; color: var(--success); }
+    .status.error { background: #fee2e2; color: var(--danger); }
+    .status.warning { background: #fef3c7; color: var(--warning); }
+
+    .hidden { display: none !important; }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 950px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+
+    .metric-card,
+    .chart-card,
+    .response-card,
+    .overview-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .overview-card {
+      background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+      min-height: 135px;
+    }
+
+    .overview-title,
+    .metric-title,
+    .chart-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      line-height: 1.45;
+    }
+
+    .overview-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #4c1d95;
+    }
+
+    .overview-sub {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .metric-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .pill.score { background: #ede9fe; color: #5b21b6; }
+    .pill.avg { background: #e0f2fe; color: #075985; }
+    .pill.count { background: #f3f4f6; color: #374151; }
+    .pill.excelente { background: #dcfce7; color: #166534; }
+    .pill.muybien { background: #dbeafe; color: #1d4ed8; }
+    .pill.regular { background: #fef3c7; color: #a16207; }
+    .pill.mejorar { background: #fee2e2; color: #b91c1c; }
+    .pill.manager { background: #ede9fe; color: #6d28d9; }
+    .pill.branch { background: #ecfeff; color: #0f766e; }
+
+    .bar {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #ede9fe;
+      overflow: hidden;
+      margin: 12px 0 6px;
+    }
+
+    .bar > div {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #6d28d9);
+      border-radius: 999px;
+      width: 0%;
+    }
+
+    .legend,
+    .soft-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .response-card h4 {
+      margin: 0 0 6px;
+    }
+
+    .response-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .response-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .response-item {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.45;
+      border-left: 4px solid #ddd6fe;
+    }
+
+    .question-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 950px) {
+      .question-cards { grid-template-columns: 1fr; }
+    }
+
+    .chart-wrap {
+      height: 380px;
+      position: relative;
+    }
+
+    .chart-wrap.small {
+      height: 310px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .empty-state {
+      border: 1px dashed #c4b5fd;
+      color: #6d28d9;
+      background: #faf5ff;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .filter-box {
+      flex: 1;
+      min-width: 250px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card hero">
+      <h1>EVALUACIÓN DE DESEMPEÑO DEL GERENTE</h1>
+      <p class="subtitle">Formulario con acceso por cuenta de Google y restricción de una sola respuesta por persona.</p>
+      <p class="subtitle">Escala de evaluación de preguntas 1 a 21: 1 = Nunca | 2 = Rara vez | 3 = A veces | 4 = Casi siempre | 5 = Siempre</p>
+      <p class="subtitle">La pregunta 25 usa tres opciones directas: Muy malo, Regular y Excelente.</p>
+      <div class="info">
+        Cada colaborador debe iniciar sesión con su cuenta de Google, seleccionar al gerente que será evaluado y responder una sola vez. El dashboard principal mostrará por defecto al gerente mejor evaluado, pero el administrador podrá cambiar a cualquier sucursal o gerente desde los filtros.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">Acceso</div>
+      <div class="section-body">
+        <div class="auth-box">
+          <div id="userState" class="user-badge">No has iniciado sesión</div>
+          <div>
+            <button id="btnLogin" class="btn btn-primary">Ingresar con Google</button>
+            <button id="btnLogout" class="btn btn-secondary hidden">Cerrar sesión</button>
+          </div>
+        </div>
+        <div id="authStatus" class="status"></div>
+      </div>
+    </div>
+
+    <form id="surveyForm" class="hidden">
+      <div class="card">
+        <div class="section-header">Datos generales</div>
+        <div class="section-body">
+          <div class="grid grid-2">
+            <div>
+              <label for="nombre">Nombre completo</label>
+              <input id="nombre" name="nombre" type="text" required />
+            </div>
+            <div>
+  <label for="puesto">Puesto</label>
+  <select id="puesto" name="puesto" required>
+    <option value="">Selecciona un puesto</option>
+    <option value="ALMACENISTA">ALMACENISTA</option>
+    <option value="CAJERO/A">CAJERO/A</option>
+  </select>
+</div>
+          </div>
+
+          <div class="grid grid-2" style="margin-top: 16px;">
+            <div>
+              <label for="fecha">Fecha de realización</label>
+              <input id="fecha" name="fecha" type="date" required />
+            </div>
+            <div>
+              <label for="managerSelection">Selecciona al gerente que será evaluado</label>
+              <select id="managerSelection" name="managerSelection" required>
+                <option value="">Selecciona sucursal y gerente</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="info">
+            Selecciona correctamente la sucursal y el gerente para que la evaluación quede registrada en el dashboard correcto.
+          </div>
+        </div>
+      </div>
+
+      <div id="questionSections"></div>
+
+      <div class="card">
+        <div class="section-header">Preguntas abiertas</div>
+        <div class="section-body">
+          <div style="margin-bottom: 16px;">
+            <label for="open22">22. ¿Qué es lo que más valoras del gerente?</label>
+            <textarea id="open22" name="open22" required></textarea>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <label for="open23">23. ¿En qué aspectos crees que puede mejorar?</label>
+            <textarea id="open23" name="open23" required></textarea>
+          </div>
+          <div>
+            <label for="open24">24. ¿Tienes alguna sugerencia para mejorar el ambiente laboral?</label>
+            <textarea id="open24" name="open24" required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-header">Evaluación general</div>
+        <div class="section-body">
+          <div class="question">
+            <div class="question-title">25. ¿Cómo calificarías el desempeño general del gerente?</div>
+            <div class="scale-grid-3">
+              <label class="scale-option bad">
+                <input type="radio" name="q25" value="MUY_MALO" required>
+                <div><strong>Muy malo</strong></div>
+                <small>Se percibe una experiencia negativa o deficiente.</small>
+              </label>
+              <label class="scale-option medium">
+                <input type="radio" name="q25" value="REGULAR" required>
+                <div><strong>Regular</strong></div>
+                <small>Hay puntos aceptables, pero todavía requiere mejora.</small>
+              </label>
+              <label class="scale-option good">
+                <input type="radio" name="q25" value="EXCELENTE" required>
+                <div><strong>Excelente</strong></div>
+                <small>El desempeño general se percibe muy positivamente.</small>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label for="finalComments">Comentarios finales</label>
+            <textarea id="finalComments" name="finalComments" placeholder="Escribe aquí cualquier observación adicional"></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="submit" id="btnSubmit" class="btn btn-primary">Enviar evaluación</button>
+          </div>
+          <div id="formStatus" class="status"></div>
+        </div>
+      </div>
+    </form>
+
+    <div id="alreadyAnswered" class="card hidden">
+      <div class="section-header">Respuesta registrada</div>
+      <div class="section-body">
+        <div class="status success show">Esta cuenta ya respondió el formulario. No se permite una segunda respuesta.</div>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="hidden">
+      <div class="card">
+        <div class="section-header">Dashboard del administrador</div>
+        <div class="section-body">
+          <div class="info" style="margin-top:0;">
+            El dashboard inicia mostrando al gerente mejor evaluado. Puedes cambiar el análisis por sucursal o por gerente desde los filtros. En las gráficas de preguntas, los tooltips muestran la pregunta completa.
+          </div>
+
+          <div class="toolbar" style="margin-top:18px;">
+            <div class="user-badge">Administrador: <span id="adminEmailLabel">-</span></div>
+            <button id="btnExportExcel" class="btn btn-primary" type="button">Exportar Excel del dashboard</button>
+          </div>
+
+          <div class="filter-row" style="margin-top:18px;">
+            <div class="filter-box">
+              <label for="branchFilter">Filtrar por sucursal</label>
+              <select id="branchFilter">
+                <option value="TODAS">Todas las sucursales</option>
+              </select>
+            </div>
+            <div class="filter-box">
+              <label for="managerFilter">Filtrar por gerente</label>
+              <select id="managerFilter">
+                <option value="AUTO">Gerente mejor evaluado</option>
+                <option value="TODOS">Todos los gerentes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-row" style="margin-top:14px;">
+            <div class="user-badge" id="dashboardContextBadge">Dashboard principal: gerente mejor evaluado</div>
+            <div class="user-badge" id="dashboardResponsesBadge">Respuestas consideradas: 0</div>
+          </div>
+
+          <div id="overviewGrid" class="grid grid-4" style="margin-top:18px;"></div>
+
+          <div class="dashboard-grid" style="margin-top:18px;">
+            <div class="chart-card">
+              <div class="chart-title">Calificación por área</div>
+              <div class="soft-text">Promedio transformado a escala de 10 para cada bloque principal.</div>
+              <div class="chart-wrap"><canvas id="areasChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">Top 10 preguntas con mejor evaluación</div>
+              <div class="soft-text">Tooltip con texto completo de la pregunta para identificar exactamente qué está saliendo mejor.</div>
+              <div class="chart-wrap"><canvas id="topQuestionsChart"></canvas></div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid" style="margin-top:18px;">
+            <div class="chart-card">
+              <div class="chart-title">Preguntas con mayor oportunidad de mejora</div>
+              <div class="soft-text">Tooltip con la pregunta completa para ubicar mejor el área de atención.</div>
+              <div class="chart-wrap"><canvas id="opportunityChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">Distribución de evaluación general</div>
+              <div class="soft-text">Frecuencia de respuestas de la pregunta 25 usando Muy malo, Regular y Excelente.</div>
+              <div class="chart-wrap small"><canvas id="generalDistributionChart"></canvas></div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="chart-card">
+            <div class="chart-title">Detalle por pregunta</div>
+            <div class="soft-text">Cada tarjeta muestra promedio, calificación sobre 10, cantidad de respuestas y una interpretación cuidada.</div>
+            <div id="summaryCards" class="question-cards"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-header">Respuestas individuales</div>
+        <div class="section-body">
+          <div class="selector-row">
+            <div style="flex:1; min-width:280px;">
+              <label for="responseSelector">Selecciona una respuesta</label>
+              <select id="responseSelector">
+                <option value="">Selecciona nombre, correo y gerente</option>
+              </select>
+            </div>
+            <div class="user-badge" id="selectedResponseBadge">Sin selección</div>
+          </div>
+          <div id="individualResponses" style="margin-top:18px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged,
+      signOut
+    } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      collection,
+      getDocs,
+      serverTimestamp,
+      query,
+      orderBy
+    } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAxnKMw4mxpH5SBjwYJrhZhqI91AeIf1ek",
+      authDomain: "formulario-1-e8da5.firebaseapp.com",
+      projectId: "formulario-1-e8da5",
+      storageBucket: "formulario-1-e8da5.firebasestorage.app",
+      messagingSenderId: "546203812305",
+      appId: "1:546203812305:web:cd47d415d52fcc5fdb20f0"
+    };
+
+    const ADMIN_EMAILS = ['rhdgardi@gmail.com'];
+    const ALLOWED_DOMAIN = '';
+
+    const MANAGERS = [
+      {
+        id: 'tapachula_luis_domingo',
+        sucursal: 'SUCURSAL TAPACHULA',
+        gerente: 'LUIS DOMINGO ALVARADO DE LA CRUZ'
+      },
+      {
+        id: 'toscana_luis_fernando',
+        sucursal: 'SUCURSAL TOSCANA',
+        gerente: 'LUIS FERNANDO GUILLEN BANTE'
+      },
+      {
+        id: 'ciudad_hidalgo_nicolas',
+        sucursal: 'SUCURSAL CIUDAD HIDALGO',
+        gerente: 'NICOLAS ALBERTO ANTONIO VELZQUEZ'
+      },
+      {
+        id: 'tuxtla_alejandro',
+        sucursal: 'SUCURSAL TUXTLA GUTIERREZ',
+        gerente: 'ALEJANDRO RODRIGUEZ CASTILLEJOS'
+      }
+    ];
+
+    const Q25_OPTIONS = {
+      MUY_MALO: { label: 'Muy malo', score: 1 },
+      REGULAR: { label: 'Regular', score: 3 },
+      EXCELENTE: { label: 'Excelente', score: 5 }
+    };
+
+    const CHART_COLORS = {
+      areas: ['#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd', '#6d28d9', '#9333ea', '#5b21b6'],
+      top: '#16a34a',
+      opportunity: '#dc2626',
+      q25: ['#ef4444', '#f59e0b', '#16a34a']
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    const sections = [
+      { title: '1. Liderazgo', questions: [
+        'El gerente motiva al equipo para alcanzar los objetivos.',
+        'Da el ejemplo con su actitud y comportamiento.',
+        'Toma decisiones de manera justa y oportuna.'
+      ]},
+      { title: '2. Comunicación', questions: [
+        'Se comunica de manera clara y efectiva.',
+        'Escucha las ideas y opiniones del equipo.',
+        'Mantiene informado al equipo sobre cambios o decisiones.'
+      ]},
+      { title: '3. Trabajo en equipo', questions: [
+        'Fomenta un ambiente de respeto y colaboración.',
+        'Apoya a los colaboradores cuando lo necesitan.',
+        'Promueve la integración del equipo.'
+      ]},
+      { title: '4. Organización y gestión', questions: [
+        'Planifica adecuadamente el trabajo.',
+        'Da seguimiento a las tareas y objetivos.',
+        'Maneja bien el tiempo y los recursos.'
+      ]},
+      { title: '5. Resolución de problemas', questions: [
+        'Maneja conflictos de forma adecuada.',
+        'Propone soluciones efectivas ante problemas.',
+        'Mantiene la calma en situaciones difíciles.'
+      ]},
+      { title: '6. Desarrollo del personal', questions: [
+        'Reconoce el buen desempeño del equipo.',
+        'Brinda retroalimentación constructiva.',
+        'Apoya el crecimiento y aprendizaje de los colaboradores.'
+      ]},
+      { title: '7. Ambiente laboral', questions: [
+        'Genera un ambiente de trabajo positivo.',
+        'Trata a todos los colaboradores con respeto.',
+        'Fomenta valores como responsabilidad y compromiso.'
+      ]}
+    ];
+
+    const flatQuestions = sections.flatMap(section => section.questions);
+
+    const questionSections = document.getElementById('questionSections');
+    const surveyForm = document.getElementById('surveyForm');
+    const alreadyAnswered = document.getElementById('alreadyAnswered');
+    const btnLogin = document.getElementById('btnLogin');
+    const btnLogout = document.getElementById('btnLogout');
+    const userState = document.getElementById('userState');
+    const authStatus = document.getElementById('authStatus');
+    const formStatus = document.getElementById('formStatus');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const adminPanel = document.getElementById('adminPanel');
+    const summaryCards = document.getElementById('summaryCards');
+    const individualResponses = document.getElementById('individualResponses');
+    const overviewGrid = document.getElementById('overviewGrid');
+    const responseSelector = document.getElementById('responseSelector');
+    const selectedResponseBadge = document.getElementById('selectedResponseBadge');
+    const adminEmailLabel = document.getElementById('adminEmailLabel');
+    const btnExportExcel = document.getElementById('btnExportExcel');
+    const managerSelection = document.getElementById('managerSelection');
+    const managerFilter = document.getElementById('managerFilter');
+    const branchFilter = document.getElementById('branchFilter');
+    const dashboardContextBadge = document.getElementById('dashboardContextBadge');
+    const dashboardResponsesBadge = document.getElementById('dashboardResponsesBadge');
+
+    let currentUser = null;
+    let adminDocs = [];
+    let filteredDocs = [];
+    let charts = {};
+
+    function showStatus(el, type, text) {
+      el.className = `status show ${type}`;
+      el.textContent = text;
+    }
+
+    function hideStatus(el) {
+      el.className = 'status';
+      el.textContent = '';
+    }
+
+    function todayISO() {
+      const d = new Date();
+      const month = `${d.getMonth() + 1}`.padStart(2, '0');
+      const day = `${d.getDate()}`.padStart(2, '0');
+      return `${d.getFullYear()}-${month}-${day}`;
+    }
+
+    function getScoreMessage(score10) {
+      if (score10 < 1.5) return 'Existe una oportunidad clara para acompañar al gerente con apoyo cercano y metas muy puntuales.';
+      if (score10 < 2.5) return 'Conviene reforzar varias prácticas clave con seguimiento frecuente y retroalimentación concreta.';
+      if (score10 < 3.5) return 'Se observan bases iniciales que pueden fortalecerse con guía y mayor consistencia.';
+      if (score10 < 4.5) return 'Hay señales positivas; con ajustes enfocados el desempeño puede crecer de forma notable.';
+      if (score10 < 5.5) return 'El desempeño muestra un punto medio estable y tiene buen margen para seguir consolidándose.';
+      if (score10 < 6.5) return 'Se aprecia avance sostenido; pequeños ajustes pueden elevar aún más la experiencia del equipo.';
+      if (score10 < 7.5) return 'Va por muy buen camino y ya refleja prácticas valiosas para el equipo.';
+      if (score10 < 8.5) return 'El resultado es sólido y transmite confianza en varias áreas importantes de liderazgo.';
+      if (score10 < 9.5) return 'Se reconoce un desempeño muy fuerte, con presencia positiva y consistencia en el trabajo diario.';
+      return 'El desempeño se percibe sobresaliente y deja una impresión muy favorable en el equipo.';
+    }
+
+    function interpretation(score10) {
+      if (score10 >= 9) return { text: 'Excelente', cls: 'excelente' };
+      if (score10 >= 7) return { text: 'Vas muy bien', cls: 'muybien' };
+      if (score10 >= 5) return { text: 'Buen avance', cls: 'regular' };
+      return { text: 'Área por fortalecer', cls: 'mejorar' };
+    }
+
+    function getQuestionText(n) {
+      if (n >= 1 && n <= 21) return flatQuestions[n - 1];
+      if (n === 25) return '¿Cómo calificarías el desempeño general del gerente?';
+      return `Pregunta ${n}`;
+    }
+
+    function shortenQuestion(text, max = 28) {
+      return text.length > max ? text.slice(0, max).trim() + '...' : text;
+    }
+
+    function getAnswerValue(item, n) {
+      const nested = item?.answers?.[`q${n}`];
+      const flat = item?.[`q${n}`];
+      const value = nested ?? flat;
+      return typeof value === 'number' ? value : Number(value);
+    }
+
+    function getQ25Raw(item) {
+      return item?.q25Label || item?.answers?.q25Label || item?.answers?.q25 || '';
+    }
+
+    function getQ25Label(item) {
+      const raw = getQ25Raw(item);
+      if (Q25_OPTIONS[raw]) return Q25_OPTIONS[raw].label;
+      if (raw === '1') return 'Muy malo';
+      if (raw === '3') return 'Regular';
+      if (raw === '5') return 'Excelente';
+      return raw || '-';
+    }
+
+    function getQ25Score(item) {
+      const raw = getQ25Raw(item);
+      if (Q25_OPTIONS[raw]) return Q25_OPTIONS[raw].score;
+
+      const nestedScore = item?.answers?.q25Score;
+      if (!Number.isNaN(Number(nestedScore)) && Number(nestedScore) > 0) return Number(nestedScore);
+
+      const flatScore = item?.q25Score;
+      if (!Number.isNaN(Number(flatScore)) && Number(flatScore) > 0) return Number(flatScore);
+
+      const oldNumeric = getAnswerValue(item, 25);
+      if (!Number.isNaN(oldNumeric) && oldNumeric > 0) return oldNumeric;
+
+      return 0;
+    }
+
+    function average(values) {
+      if (!values.length) return 0;
+      return values.reduce((a, b) => a + b, 0) / values.length;
+    }
+
+    function toScore10(avg5) {
+      return (avg5 / 5) * 10;
+    }
+
+    function areaQuestionNumbers(sectionIndex) {
+      const start = sectionIndex * 3 + 1;
+      return [start, start + 1, start + 2];
+    }
+
+    function destroyCharts() {
+      Object.values(charts).forEach(chart => {
+        if (chart) chart.destroy();
+      });
+      charts = {};
+    }
+
+    function populateManagerSelects() {
+      managerSelection.innerHTML = '<option value="">Selecciona sucursal y gerente</option>';
+      managerFilter.innerHTML = `
+        <option value="AUTO">Gerente mejor evaluado</option>
+        <option value="TODOS">Todos los gerentes</option>
+      `;
+      branchFilter.innerHTML = `<option value="TODAS">Todas las sucursales</option>`;
+
+      MANAGERS.forEach(item => {
+        const label = `${item.sucursal} — GERENTE: ${item.gerente}`;
+
+        const optForm = document.createElement('option');
+        optForm.value = item.id;
+        optForm.textContent = label;
+        managerSelection.appendChild(optForm);
+
+        const optFilter = document.createElement('option');
+        optFilter.value = item.id;
+        optFilter.textContent = label;
+        managerFilter.appendChild(optFilter);
+      });
+
+      [...new Set(MANAGERS.map(item => item.sucursal))].forEach(sucursal => {
+        const opt = document.createElement('option');
+        opt.value = sucursal;
+        opt.textContent = sucursal;
+        branchFilter.appendChild(opt);
+      });
+    }
+
+    function buildQuestions() {
+      let questionNumber = 1;
+      questionSections.innerHTML = '';
+
+      for (const section of sections) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'card';
+
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.textContent = section.title;
+
+        const body = document.createElement('div');
+        body.className = 'section-body';
+
+        for (const text of section.questions) {
+          const question = document.createElement('div');
+          question.className = 'question';
+
+          question.innerHTML = `
+            <div class="question-title">${questionNumber}. ${text}</div>
+            <div class="scale-grid">
+              <label class="scale-option"><input type="radio" name="q${questionNumber}" value="1" required><div>1</div><small>Nunca</small></label>
+              <label class="scale-option"><input type="radio" name="q${questionNumber}" value="2" required><div>2</div><small>Rara vez</small></label>
+              <label class="scale-option"><input type="radio" name="q${questionNumber}" value="3" required><div>3</div><small>A veces</small></label>
+              <label class="scale-option"><input type="radio" name="q${questionNumber}" value="4" required><div>4</div><small>Casi siempre</small></label>
+              <label class="scale-option"><input type="radio" name="q${questionNumber}" value="5" required><div>5</div><small>Siempre</small></label>
+            </div>
+          `;
+
+          body.appendChild(question);
+          questionNumber++;
+        }
+
+        wrapper.appendChild(header);
+        wrapper.appendChild(body);
+        questionSections.appendChild(wrapper);
+      }
+    }
+
+    function resetUI() {
+      surveyForm.classList.add('hidden');
+      alreadyAnswered.classList.add('hidden');
+      adminPanel.classList.add('hidden');
+      btnLogout.classList.add('hidden');
+      btnLogin.classList.remove('hidden');
+      userState.textContent = 'No has iniciado sesión';
+      hideStatus(authStatus);
+      hideStatus(formStatus);
+      destroyCharts();
+    }
+
+    async function checkExistingResponse(user) {
+      const responseRef = doc(db, 'responses', user.uid);
+      const snap = await getDoc(responseRef);
+      return snap.exists();
+    }
+
+    function getManagerById(id) {
+      return MANAGERS.find(item => item.id === id) || null;
+    }
+
+    function getManagerDisplayById(id) {
+      const item = getManagerById(id);
+      return item ? `${item.sucursal} — GERENTE: ${item.gerente}` : '-';
+    }
+
+    function calculateDocGlobalScore(item) {
+      const mainValues = Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
+        .filter(v => !Number.isNaN(v) && v > 0);
+      const q25 = getQ25Score(item);
+      const combined = [...mainValues, ...(q25 > 0 ? [q25] : [])];
+      return toScore10(average(combined));
+    }
+
+    function getManagerStats(docs) {
+      return MANAGERS.map(manager => {
+        const items = docs.filter(d => d.managerId === manager.id);
+        const scores = items.map(calculateDocGlobalScore).filter(v => !Number.isNaN(v) && v > 0);
+        return {
+          ...manager,
+          docs: items,
+          count: items.length,
+          avg10: Number(average(scores).toFixed(2))
+        };
+      }).filter(item => item.count > 0);
+    }
+
+    function getBestManager(docs) {
+      const stats = getManagerStats(docs).sort((a, b) => {
+        if (b.avg10 !== a.avg10) return b.avg10 - a.avg10;
+        return b.count - a.count;
+      });
+      return stats[0] || null;
+    }
+
+    function applyFilters() {
+      if (!adminDocs.length) {
+        filteredDocs = [];
+        renderDashboard([]);
+        return;
+      }
+
+      const selectedBranch = branchFilter.value;
+      const selectedManager = managerFilter.value;
+
+      let docsForFilter = [...adminDocs];
+
+      if (selectedBranch !== 'TODAS') {
+        docsForFilter = docsForFilter.filter(item => item.sucursal === selectedBranch);
+      }
+
+      let contextText = 'Dashboard principal: gerente mejor evaluado';
+
+      if (selectedManager === 'AUTO') {
+        const best = getBestManager(docsForFilter);
+        if (best) {
+          filteredDocs = docsForFilter.filter(item => item.managerId === best.id);
+          contextText = `Dashboard principal: ${best.gerente} | ${best.sucursal}`;
+        } else {
+          filteredDocs = [];
+          contextText = 'No hay respuestas para el filtro seleccionado';
+        }
+      } else if (selectedManager === 'TODOS') {
+        filteredDocs = [...docsForFilter];
+        contextText = selectedBranch === 'TODAS'
+          ? 'Dashboard agrupado: todos los gerentes'
+          : `Dashboard agrupado: ${selectedBranch}`;
+      } else {
+        filteredDocs = docsForFilter.filter(item => item.managerId === selectedManager);
+        const manager = getManagerById(selectedManager);
+        contextText = manager
+          ? `Dashboard de gerente: ${manager.gerente} | ${manager.sucursal}`
+          : 'Dashboard filtrado';
+      }
+
+      dashboardContextBadge.textContent = contextText;
+      dashboardResponsesBadge.textContent = `Respuestas consideradas: ${filteredDocs.length}`;
+      renderDashboard(filteredDocs);
+    }
+
+    function buildOverview(docs) {
+      overviewGrid.innerHTML = '';
+
+      if (!docs.length) {
+        overviewGrid.innerHTML = '<div class="empty-state">No hay respuestas para mostrar en este filtro.</div>';
+        return;
+      }
+
+      const managerStatsGlobal = getManagerStats(adminDocs);
+      const bestManagerGlobal = getBestManager(adminDocs);
+      const allMainAnswers = docs.flatMap(item =>
+        Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
+          .filter(v => !Number.isNaN(v) && v > 0)
+      );
+
+      const generalAnswers = docs.map(item => getQ25Score(item)).filter(v => !Number.isNaN(v) && v > 0);
+      const avgMain10 = toScore10(average(allMainAnswers));
+      const avgGeneral10 = toScore10(average(generalAnswers));
+
+      const areaData = sections.map((section, index) => {
+        const qs = areaQuestionNumbers(index);
+        const vals = docs.flatMap(item => qs.map(q => getAnswerValue(item, q)).filter(v => !Number.isNaN(v) && v > 0));
+        return { title: section.title, avg10: toScore10(average(vals)) };
+      });
+
+      const sortedAreas = [...areaData].sort((a, b) => b.avg10 - a.avg10);
+      const strongestArea = sortedAreas[0];
+      const weakestArea = sortedAreas[sortedAreas.length - 1];
+      const overallMessage = getScoreMessage(avgMain10);
+
+      const cards = [
+        {
+          title: 'Gerente mejor evaluado',
+          value: bestManagerGlobal ? bestManagerGlobal.gerente : '-',
+          sub: bestManagerGlobal
+            ? `${bestManagerGlobal.sucursal} | ${bestManagerGlobal.avg10.toFixed(1)} / 10`
+            : 'Sin datos'
+        },
+        {
+          title: 'Total de respuestas',
+          value: String(docs.length),
+          sub: 'Cantidad de formularios considerados en el filtro actual.'
+        },
+        {
+          title: 'Promedio global',
+          value: `${avgMain10.toFixed(1)} / 10`,
+          sub: overallMessage
+        },
+        {
+          title: 'Evaluación general',
+          value: `${avgGeneral10.toFixed(1)} / 10`,
+          sub: 'Resultado promedio de la pregunta 25.'
+        },
+        {
+          title: 'Área destacada',
+          value: strongestArea ? strongestArea.title.replace(/^\d+\.\s*/, '') : '-',
+          sub: strongestArea ? `${strongestArea.avg10.toFixed(1)} / 10` : 'Sin datos'
+        },
+        {
+          title: 'Área a reforzar',
+          value: weakestArea ? weakestArea.title.replace(/^\d+\.\s*/, '') : '-',
+          sub: weakestArea ? `${weakestArea.avg10.toFixed(1)} / 10` : 'Sin datos'
+        },
+        {
+          title: 'Gerentes con respuestas',
+          value: String(managerStatsGlobal.length),
+          sub: 'Gerentes que ya cuentan con al menos una evaluación registrada.'
+        },
+        {
+          title: 'Interpretación',
+          value: interpretation(avgMain10).text,
+          sub: overallMessage
+        }
+      ];
+
+      cards.forEach(card => {
+        const el = document.createElement('div');
+        el.className = 'overview-card';
+        el.innerHTML = `
+          <div class="overview-title">${card.title}</div>
+          <div class="overview-value">${card.value}</div>
+          <div class="overview-sub">${card.sub}</div>
+        `;
+        overviewGrid.appendChild(el);
+      });
+    }
+
+    function renderCharts(docs) {
+      destroyCharts();
+
+      if (!docs.length) return;
+
+      const areaLabels = sections.map(s => s.title.replace(/^\d+\.\s*/, ''));
+      const areaScores = sections.map((section, index) => {
+        const qs = areaQuestionNumbers(index);
+        const vals = docs.flatMap(item => qs.map(q => getAnswerValue(item, q)).filter(v => !Number.isNaN(v) && v > 0));
+        return Number(toScore10(average(vals)).toFixed(2));
+      });
+
+      charts.areasChart = new Chart(document.getElementById('areasChart'), {
+        type: 'bar',
+        data: {
+          labels: areaLabels,
+          datasets: [{
+            label: 'Calificación /10',
+            data: areaScores,
+            borderRadius: 10,
+            backgroundColor: CHART_COLORS.areas
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 10 }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => items[0]?.label || '',
+                label: (context) => `Calificación: ${context.raw} / 10`
+              }
+            }
+          }
+        }
+      });
+
+      const questionData = Array.from({ length: 21 }, (_, index) => {
+        const n = index + 1;
+        const values = docs.map(item => getAnswerValue(item, n)).filter(v => !Number.isNaN(v) && v > 0);
+        return {
+          n,
+          title: getQuestionText(n),
+          shortTitle: shortenQuestion(getQuestionText(n), 32),
+          score10: Number(toScore10(average(values)).toFixed(2))
+        };
+      });
+
+      const top10 = [...questionData].sort((a, b) => b.score10 - a.score10).slice(0, 10);
+      charts.topQuestionsChart = new Chart(document.getElementById('topQuestionsChart'), {
+        type: 'bar',
+        data: {
+          labels: top10.map(item => item.shortTitle),
+          datasets: [{
+            label: 'Calificación /10',
+            data: top10.map(item => item.score10),
+            borderRadius: 10,
+            backgroundColor: CHART_COLORS.top
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { beginAtZero: true, max: 10 }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0]?.dataIndex ?? 0;
+                  return top10[idx]?.title || '';
+                },
+                label: (context) => `Calificación: ${context.raw} / 10`
+              }
+            }
+          }
+        }
+      });
+
+      const bottom10 = [...questionData].sort((a, b) => a.score10 - b.score10).slice(0, 10);
+      charts.opportunityChart = new Chart(document.getElementById('opportunityChart'), {
+        type: 'bar',
+        data: {
+          labels: bottom10.map(item => item.shortTitle),
+          datasets: [{
+            label: 'Calificación /10',
+            data: bottom10.map(item => item.score10),
+            borderRadius: 10,
+            backgroundColor: CHART_COLORS.opportunity
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { beginAtZero: true, max: 10 }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0]?.dataIndex ?? 0;
+                  return bottom10[idx]?.title || '';
+                },
+                label: (context) => `Calificación: ${context.raw} / 10`
+              }
+            }
+          }
+        }
+      });
+
+      const generalCounts = ['MUY_MALO', 'REGULAR', 'EXCELENTE'].map(key =>
+        docs.filter(item => getQ25Raw(item) === key || getQ25Label(item).toLowerCase() === Q25_OPTIONS[key].label.toLowerCase()).length
+      );
+
+      charts.generalDistributionChart = new Chart(document.getElementById('generalDistributionChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Muy malo', 'Regular', 'Excelente'],
+          datasets: [{
+            label: 'Frecuencia',
+            data: generalCounts,
+            borderRadius: 10,
+            backgroundColor: CHART_COLORS.q25
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, precision: 0 }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => items[0]?.label || '',
+                label: (context) => `Respuestas: ${context.raw}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderQuestionCards(docs) {
+      summaryCards.innerHTML = '';
+
+      if (!docs.length) {
+        summaryCards.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas para este filtro.</div>';
+        return;
+      }
+
+      for (let i = 1; i <= 21; i++) {
+        const values = docs.map(item => getAnswerValue(item, i)).filter(v => !Number.isNaN(v) && v > 0);
+        const questionText = getQuestionText(i);
+        const avg = average(values);
+        const score10 = toScore10(avg);
+        const perf = interpretation(score10);
+        const percent = (avg / 5) * 100;
+        const message = getScoreMessage(score10);
+
+        const card = document.createElement('div');
+        card.className = 'metric-card';
+        card.innerHTML = `
+          <div class="metric-title">${i}. ${questionText}</div>
+          <div class="metric-row">
+            <span class="pill avg">Promedio: ${avg.toFixed(2)} / 5</span>
+            <span class="pill score">Calificación: ${score10.toFixed(1)} / 10</span>
+            <span class="pill count">Respuestas: ${values.length}</span>
+            <span class="pill ${perf.cls}">${perf.text}</span>
+          </div>
+          <div class="bar"><div style="width:${percent.toFixed(0)}%"></div></div>
+          <div class="legend">${message}</div>
+        `;
+        summaryCards.appendChild(card);
+      }
+
+      const q25Values = docs.map(item => getQ25Score(item)).filter(v => !Number.isNaN(v) && v > 0);
+      const q25Avg = average(q25Values);
+      const q25Score10 = toScore10(q25Avg);
+      const q25Perf = interpretation(q25Score10);
+      const q25Percent = (q25Avg / 5) * 100;
+      const q25Card = document.createElement('div');
+      q25Card.className = 'metric-card';
+      q25Card.innerHTML = `
+        <div class="metric-title">25. ¿Cómo calificarías el desempeño general del gerente?</div>
+        <div class="metric-row">
+          <span class="pill avg">Promedio: ${q25Avg.toFixed(2)} / 5</span>
+          <span class="pill score">Calificación: ${q25Score10.toFixed(1)} / 10</span>
+          <span class="pill count">Respuestas: ${q25Values.length}</span>
+          <span class="pill ${q25Perf.cls}">${q25Perf.text}</span>
+        </div>
+        <div class="bar"><div style="width:${q25Percent.toFixed(0)}%"></div></div>
+        <div class="legend">${getScoreMessage(q25Score10)}</div>
+      `;
+      summaryCards.appendChild(q25Card);
+    }
+
+    function renderSelector(docs) {
+      responseSelector.innerHTML = '<option value="">Selecciona nombre, correo y gerente</option>';
+
+      docs.forEach((item, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = `${item.nombre || 'Sin nombre'} — ${item.email || 'Sin correo'} — ${item.gerente || 'Sin gerente'}`;
+        responseSelector.appendChild(option);
+      });
+
+      selectedResponseBadge.textContent = 'Sin selección';
+      individualResponses.innerHTML = '<div class="empty-state">Selecciona un colaborador para ver su formulario individual.</div>';
+    }
+
+    function renderSingleResponse(index) {
+      individualResponses.innerHTML = '';
+      const item = filteredDocs[index];
+
+      if (!item) {
+        selectedResponseBadge.textContent = 'Sin selección';
+        individualResponses.innerHTML = '<div class="empty-state">Selecciona un colaborador para ver su formulario individual.</div>';
+        return;
+      }
+
+      selectedResponseBadge.textContent = `${item.nombre || 'Sin nombre'} | ${item.email || 'Sin correo'}`;
+      const valuesMain = Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1)).filter(v => !Number.isNaN(v) && v > 0);
+      const avgMain10 = toScore10(average(valuesMain));
+      const general10 = toScore10(getQ25Score(item) || 0);
+      const softMessage = getScoreMessage(avgMain10);
+
+      const answersHtml = Array.from({ length: 21 }, (_, idx) => {
+        const n = idx + 1;
+        const text = getQuestionText(n);
+        const value = getAnswerValue(item, n);
+        return `<div class="response-item"><strong>${n}. ${text}</strong><br>Respuesta: ${!Number.isNaN(value) && value > 0 ? value : '-'}</div>`;
+      }).join('');
+
+      const div = document.createElement('div');
+      div.className = 'response-card';
+      div.innerHTML = `
+        <h4>${item.nombre || 'Sin nombre'}</h4>
+        <div class="response-meta">
+          Correo: ${item.email || '-'}<br>
+          Puesto: ${item.puesto || '-'}<br>
+          Fecha de realización: ${item.fecha || '-'}<br>
+          Sucursal: ${item.sucursal || '-'}<br>
+          Gerente evaluado: ${item.gerente || '-'}
+        </div>
+        <div class="metric-row" style="margin-bottom: 14px;">
+          <span class="pill avg">Promedio global: ${avgMain10.toFixed(1)} / 10</span>
+          <span class="pill score">Pregunta 25: ${general10.toFixed(1)} / 10</span>
+          <span class="pill manager">${item.gerente || '-'}</span>
+          <span class="pill branch">${item.sucursal || '-'}</span>
+          <span class="pill ${interpretation(avgMain10).cls}">${interpretation(avgMain10).text}</span>
+        </div>
+        <div class="info" style="margin-top:0; margin-bottom:16px;">${softMessage}</div>
+        <div class="response-list">${answersHtml}</div>
+        <div class="response-item" style="margin-top: 10px;"><strong>25. ¿Cómo calificarías el desempeño general del gerente?</strong><br>Respuesta: ${getQ25Label(item)}</div>
+        <div class="response-item"><strong>22. Lo que más valora:</strong><br>${item.open22 || ''}</div>
+        <div class="response-item"><strong>23. Aspectos a mejorar:</strong><br>${item.open23 || ''}</div>
+        <div class="response-item"><strong>24. Sugerencias para ambiente laboral:</strong><br>${item.open24 || ''}</div>
+        <div class="response-item"><strong>Comentarios finales:</strong><br>${item.finalComments || 'Sin comentarios finales.'}</div>
+      `;
+      individualResponses.appendChild(div);
+    }
+
+    function renderDashboard(docs) {
+      buildOverview(docs);
+      renderCharts(docs);
+      renderQuestionCards(docs);
+      renderSelector(docs);
+
+      if (!docs.length) {
+        individualResponses.innerHTML = '<div class="empty-state">No hay respuestas para el filtro actual.</div>';
+      }
+    }
+
+    async function exportDashboardExcel() {
+      if (!filteredDocs.length) {
+        alert('No hay datos para exportar con el filtro actual.');
+        return;
+      }
+
+      try {
+        btnExportExcel.disabled = true;
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'ChatGPT';
+        workbook.created = new Date();
+
+        const wsResumen = workbook.addWorksheet('Resumen');
+        wsResumen.columns = [
+          { header: 'Indicador', key: 'indicador', width: 36 },
+          { header: 'Valor', key: 'valor', width: 36 },
+          { header: 'Detalle', key: 'detalle', width: 90 }
+        ];
+
+        const allMainAnswers = filteredDocs.flatMap(item =>
+          Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1)).filter(v => !Number.isNaN(v) && v > 0)
+        );
+        const avgMain10 = toScore10(average(allMainAnswers));
+        const generalAnswers = filteredDocs.map(item => getQ25Score(item)).filter(v => !Number.isNaN(v) && v > 0);
+        const avgGeneral10 = toScore10(average(generalAnswers));
+        const areaStats = sections.map((section, index) => {
+          const qs = areaQuestionNumbers(index);
+          const vals = filteredDocs.flatMap(item => qs.map(q => getAnswerValue(item, q)).filter(v => !Number.isNaN(v) && v > 0));
+          return { area: section.title.replace(/^\d+\.\s*/, ''), score10: Number(toScore10(average(vals)).toFixed(2)) };
+        });
+
+        const strongestArea = [...areaStats].sort((a, b) => b.score10 - a.score10)[0];
+        const weakestArea = [...areaStats].sort((a, b) => a.score10 - b.score10)[0];
+
+        wsResumen.addRows([
+          { indicador: 'Contexto del dashboard', valor: dashboardContextBadge.textContent, detalle: 'Filtro activo al momento de exportar.' },
+          { indicador: 'Total de respuestas', valor: filteredDocs.length, detalle: 'Cantidad de formularios considerados en este archivo.' },
+          { indicador: 'Promedio global', valor: avgMain10.toFixed(1) + ' / 10', detalle: getScoreMessage(avgMain10) },
+          { indicador: 'Evaluación general', valor: avgGeneral10.toFixed(1) + ' / 10', detalle: 'Promedio de la pregunta 25.' },
+          { indicador: 'Área destacada', valor: strongestArea?.area || '-', detalle: strongestArea ? strongestArea.score10.toFixed(1) + ' / 10' : 'Sin datos' },
+          { indicador: 'Área a reforzar', valor: weakestArea?.area || '-', detalle: weakestArea ? weakestArea.score10.toFixed(1) + ' / 10' : 'Sin datos' }
+        ]);
+
+        const wsPreguntas = workbook.addWorksheet('Preguntas');
+        wsPreguntas.columns = [
+          { header: 'Pregunta', key: 'pregunta', width: 12 },
+          { header: 'Descripción', key: 'descripcion', width: 85 },
+          { header: 'Promedio /5', key: 'promedio5', width: 16 },
+          { header: 'Calificación /10', key: 'score10', width: 16 },
+          { header: 'Respuestas', key: 'respuestas', width: 12 },
+          { header: 'Mensaje', key: 'mensaje', width: 100 }
+        ];
+
+        for (let i = 1; i <= 21; i++) {
+          const values = filteredDocs.map(item => getAnswerValue(item, i)).filter(v => !Number.isNaN(v) && v > 0);
+          const avg = average(values);
+          const score10 = toScore10(avg);
+          wsPreguntas.addRow({
+            pregunta: 'P' + i,
+            descripcion: getQuestionText(i),
+            promedio5: avg.toFixed(2),
+            score10: score10.toFixed(1),
+            respuestas: values.length,
+            mensaje: getScoreMessage(score10)
+          });
+        }
+
+        const q25Values = filteredDocs.map(item => getQ25Score(item)).filter(v => !Number.isNaN(v) && v > 0);
+        wsPreguntas.addRow({
+          pregunta: 'P25',
+          descripcion: getQuestionText(25),
+          promedio5: average(q25Values).toFixed(2),
+          score10: toScore10(average(q25Values)).toFixed(1),
+          respuestas: q25Values.length,
+          mensaje: getScoreMessage(toScore10(average(q25Values)))
+        });
+
+        const wsRespuestas = workbook.addWorksheet('Respuestas');
+        wsRespuestas.columns = [
+          { header: 'Nombre', key: 'nombre', width: 28 },
+          { header: 'Correo', key: 'email', width: 34 },
+          { header: 'Puesto', key: 'puesto', width: 22 },
+          { header: 'Fecha', key: 'fecha', width: 16 },
+          { header: 'Sucursal', key: 'sucursal', width: 28 },
+          { header: 'Gerente', key: 'gerente', width: 42 },
+          ...Array.from({ length: 21 }, (_, idx) => ({ header: 'P' + (idx + 1), key: 'q' + (idx + 1), width: 10 })),
+          { header: 'P25', key: 'q25', width: 18 },
+          { header: 'Q22', key: 'open22', width: 42 },
+          { header: 'Q23', key: 'open23', width: 42 },
+          { header: 'Q24', key: 'open24', width: 42 },
+          { header: 'Comentarios finales', key: 'finalComments', width: 42 }
+        ];
+
+        filteredDocs.forEach(item => {
+          const row = {
+            nombre: item.nombre || '',
+            email: item.email || '',
+            puesto: item.puesto || '',
+            fecha: item.fecha || '',
+            sucursal: item.sucursal || '',
+            gerente: item.gerente || '',
+            q25: getQ25Label(item),
+            open22: item.open22 || '',
+            open23: item.open23 || '',
+            open24: item.open24 || '',
+            finalComments: item.finalComments || ''
+          };
+          for (let i = 1; i <= 21; i++) row['q' + i] = getAnswerValue(item, i) || '';
+          wsRespuestas.addRow(row);
+        });
+
+        [wsResumen, wsPreguntas, wsRespuestas].forEach(ws => {
+          ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '6D28D9' } };
+          ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFF' } };
+        });
+
+        const chartsSheet = workbook.addWorksheet('Graficas');
+        chartsSheet.columns = [{ header: 'Gráfica', key: 'name', width: 24 }];
+        chartsSheet.getCell('A1').value = 'Gráficas del dashboard';
+        chartsSheet.getCell('A1').font = { bold: true, size: 16 };
+
+        const chartEntries = [
+          { id: 'areasChart', row: 3 },
+          { id: 'topQuestionsChart', row: 25 },
+          { id: 'opportunityChart', row: 47 },
+          { id: 'generalDistributionChart', row: 69 }
+        ];
+
+        for (const entry of chartEntries) {
+          const canvas = document.getElementById(entry.id);
+          if (!canvas) continue;
+          const base64 = canvas.toDataURL('image/png');
+          const imageId = workbook.addImage({ base64, extension: 'png' });
+          chartsSheet.addImage(imageId, { tl: { col: 0, row: entry.row }, ext: { width: 900, height: 260 } });
+        }
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer]), `dashboard-evaluacion-gerente-${todayISO()}.xlsx`);
+      } catch (error) {
+        console.error(error);
+        alert('No fue posible exportar el Excel. Revisa la consola del navegador.');
+      } finally {
+        btnExportExcel.disabled = false;
+      }
+    }
+
+    async function loadAdminPanel() {
+      summaryCards.innerHTML = '';
+      individualResponses.innerHTML = '';
+      overviewGrid.innerHTML = '';
+
+      try {
+        const qRef = query(collection(db, 'responses'), orderBy('submittedAt', 'desc'));
+        const snap = await getDocs(qRef);
+        adminDocs = snap.docs.map(d => d.data());
+
+        if (!adminDocs.length) {
+          filteredDocs = [];
+          dashboardContextBadge.textContent = 'No hay respuestas registradas';
+          dashboardResponsesBadge.textContent = 'Respuestas consideradas: 0';
+          summaryCards.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas.</div>';
+          individualResponses.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas.</div>';
+          overviewGrid.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas.</div>';
+          return;
+        }
+
+        managerFilter.value = 'AUTO';
+        branchFilter.value = 'TODAS';
+        applyFilters();
+      } catch (error) {
+        console.error(error);
+        summaryCards.innerHTML = '<div class="empty-state">No fue posible cargar el panel de resultados. Revisa las reglas de Firestore y que el correo administrador tenga permiso para leer todas las respuestas.</div>';
+      }
+    }
+
+    responseSelector.addEventListener('change', (e) => {
+      renderSingleResponse(Number(e.target.value));
+    });
+
+    managerFilter.addEventListener('change', applyFilters);
+    branchFilter.addEventListener('change', applyFilters);
+    btnExportExcel.addEventListener('click', exportDashboardExcel);
+
+    btnLogin.addEventListener('click', async () => {
+      hideStatus(authStatus);
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const email = result.user.email || '';
+        if (ALLOWED_DOMAIN && !email.toLowerCase().endsWith(`@${ALLOWED_DOMAIN.toLowerCase()}`)) {
+          await signOut(auth);
+          showStatus(authStatus, 'error', `Solo se permiten cuentas del dominio ${ALLOWED_DOMAIN}.`);
+        }
+      } catch (error) {
+        showStatus(authStatus, 'error', 'No fue posible iniciar sesión con Google. Revisa la configuración de Firebase.');
+        console.error(error);
+      }
+    });
+
+    btnLogout.addEventListener('click', async () => {
+      await signOut(auth);
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      resetUI();
+      buildQuestions();
+      populateManagerSelects();
+      document.getElementById('fecha').value = todayISO();
+
+      if (!user) return;
+
+      currentUser = user;
+      userState.textContent = `Sesión iniciada: ${user.email}`;
+      btnLogin.classList.add('hidden');
+      btnLogout.classList.remove('hidden');
+
+      const email = (user.email || '').toLowerCase();
+      const isAdmin = ADMIN_EMAILS.map(v => v.toLowerCase()).includes(email);
+
+      if (isAdmin) {
+        adminEmailLabel.textContent = user.email || '-';
+        adminPanel.classList.remove('hidden');
+        await loadAdminPanel();
+      }
+
+      const already = await checkExistingResponse(user);
+      if (already) {
+        alreadyAnswered.classList.remove('hidden');
+        showStatus(authStatus, 'warning', 'Esta cuenta ya respondió anteriormente.');
+        return;
+      }
+
+      surveyForm.classList.remove('hidden');
+      showStatus(authStatus, 'success', 'Has iniciado sesión correctamente. Ya puedes responder la evaluación.');
+      document.getElementById('nombre').value = user.displayName || '';
+    });
+
+    surveyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideStatus(formStatus);
+
+      if (!currentUser) {
+        showStatus(formStatus, 'error', 'Debes iniciar sesión antes de enviar tu evaluación.');
+        return;
+      }
+
+      try {
+        btnSubmit.disabled = true;
+        const existing = await checkExistingResponse(currentUser);
+        if (existing) {
+          surveyForm.classList.add('hidden');
+          alreadyAnswered.classList.remove('hidden');
+          showStatus(formStatus, 'warning', 'Esta cuenta ya había enviado una respuesta.');
+          return;
+        }
+
+        const formData = new FormData(surveyForm);
+        const selectedManagerId = String(formData.get('managerSelection') || '');
+        const managerInfo = getManagerById(selectedManagerId);
+
+        if (!managerInfo) {
+          showStatus(formStatus, 'error', 'Debes seleccionar la sucursal y el gerente que será evaluado.');
+          btnSubmit.disabled = false;
+          return;
+        }
+
+        const answers = {};
+        for (let i = 1; i <= 21; i++) {
+          answers[`q${i}`] = Number(formData.get(`q${i}`));
+        }
+
+        const q25Raw = String(formData.get('q25') || '');
+        const q25Config = Q25_OPTIONS[q25Raw];
+
+        const payload = {
+          uid: currentUser.uid,
+          email: currentUser.email || '',
+          nombre: String(formData.get('nombre') || '').trim(),
+          puesto: String(formData.get('puesto') || '').trim(),
+          fecha: String(formData.get('fecha') || ''),
+          managerId: managerInfo.id,
+          sucursal: managerInfo.sucursal,
+          gerente: managerInfo.gerente,
+          managerDisplay: `${managerInfo.sucursal} — GERENTE: ${managerInfo.gerente}`,
+          open22: String(formData.get('open22') || '').trim(),
+          open23: String(formData.get('open23') || '').trim(),
+          open24: String(formData.get('open24') || '').trim(),
+          finalComments: String(formData.get('finalComments') || '').trim(),
+          q25Label: q25Raw,
+          q25Text: q25Config?.label || '',
+          q25Score: q25Config?.score || 0,
+          answers,
+          submittedAt: serverTimestamp()
+        };
+
+        await setDoc(doc(db, 'responses', currentUser.uid), payload);
+
+        surveyForm.reset();
+        document.getElementById('fecha').value = todayISO();
+        surveyForm.classList.add('hidden');
+        alreadyAnswered.classList.remove('hidden');
+        showStatus(formStatus, 'success', 'Tu evaluación fue enviada correctamente.');
+
+        const email = (currentUser.email || '').toLowerCase();
+        if (ADMIN_EMAILS.map(v => v.toLowerCase()).includes(email)) {
+          adminPanel.classList.remove('hidden');
+          await loadAdminPanel();
+        }
+      } catch (error) {
+        console.error(error);
+        showStatus(formStatus, 'error', 'Ocurrió un error al guardar la evaluación. Revisa la configuración de Firestore y vuelve a intentarlo.');
+      } finally {
+        btnSubmit.disabled = false;
+      }
+    });
+
+    buildQuestions();
+    populateManagerSelects();
+    document.getElementById('fecha').value = todayISO();
+  </script>
+</body>
+</html>
