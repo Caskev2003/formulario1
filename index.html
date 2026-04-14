@@ -443,7 +443,7 @@
       <p class="subtitle">Escala de evaluación de preguntas 1 a 21: 1 = Nunca | 2 = Rara vez | 3 = A veces | 4 = Casi siempre | 5 = Siempre</p>
       <p class="subtitle">La pregunta 25 usa tres opciones directas: Muy malo, Regular y Excelente.</p>
       <div class="info">
-        Cada colaborador debe iniciar sesión con su cuenta de Google, seleccionar al gerente que será evaluado y responder una sola vez. El dashboard principal mostrará por defecto al gerente mejor evaluado, pero el administrador podrá cambiar a cualquier sucursal o gerente desde los filtros.
+        Cada colaborador debe iniciar sesión con su cuenta de Google, seleccionar al gerente que será evaluado y responder una sola vez. Puedes filtrar el dashboard por sucursal o por gerente. Cuando se visualicen todos los gerentes en conjunto, se indicará cuál es el mejor valuado. En las gráficas de preguntas, los tooltips muestran la pregunta completa.
       </div>
     </div>
 
@@ -471,13 +471,13 @@
               <input id="nombre" name="nombre" type="text" required />
             </div>
             <div>
-  <label for="puesto">Puesto</label>
-  <select id="puesto" name="puesto" required>
-    <option value="">Selecciona un puesto</option>
-    <option value="ALMACENISTA">ALMACENISTA</option>
-    <option value="CAJERO/A">CAJERO/A</option>
-  </select>
-</div>
+              <label for="puesto">Puesto</label>
+              <select id="puesto" name="puesto" required>
+                <option value="">Selecciona un puesto</option>
+                <option value="ALMACENISTA">ALMACENISTA</option>
+                <option value="CAJERO/A">CAJERO/A</option>
+              </select>
+            </div>
           </div>
 
           <div class="grid grid-2" style="margin-top: 16px;">
@@ -568,7 +568,7 @@
         <div class="section-header">Dashboard del administrador</div>
         <div class="section-body">
           <div class="info" style="margin-top:0;">
-            El dashboard inicia mostrando al gerente mejor evaluado. Puedes cambiar el análisis por sucursal o por gerente desde los filtros. En las gráficas de preguntas, los tooltips muestran la pregunta completa.
+            Puedes filtrar el dashboard por sucursal o por gerente. Cuando se visualicen todos los gerentes en conjunto, se indicará cuál es el mejor valuado. En las gráficas de preguntas, los tooltips muestran la pregunta completa.
           </div>
 
           <div class="toolbar" style="margin-top:18px;">
@@ -586,14 +586,13 @@
             <div class="filter-box">
               <label for="managerFilter">Filtrar por gerente</label>
               <select id="managerFilter">
-                <option value="AUTO">Gerente mejor evaluado</option>
                 <option value="TODOS">Todos los gerentes</option>
               </select>
             </div>
           </div>
 
           <div class="filter-row" style="margin-top:14px;">
-            <div class="user-badge" id="dashboardContextBadge">Dashboard principal: gerente mejor evaluado</div>
+            <div class="user-badge" id="dashboardContextBadge">Dashboard agrupado: todos los gerentes</div>
             <div class="user-badge" id="dashboardResponsesBadge">Respuestas consideradas: 0</div>
           </div>
 
@@ -906,7 +905,6 @@
     function populateManagerSelects() {
       managerSelection.innerHTML = '<option value="">Selecciona sucursal y gerente</option>';
       managerFilter.innerHTML = `
-        <option value="AUTO">Gerente mejor evaluado</option>
         <option value="TODOS">Todos los gerentes</option>
       `;
       branchFilter.innerHTML = `<option value="TODAS">Todas las sucursales</option>`;
@@ -995,11 +993,6 @@
       return MANAGERS.find(item => item.id === id) || null;
     }
 
-    function getManagerDisplayById(id) {
-      const item = getManagerById(id);
-      return item ? `${item.sucursal} — GERENTE: ${item.gerente}` : '-';
-    }
-
     function calculateDocGlobalScore(item) {
       const mainValues = Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
         .filter(v => !Number.isNaN(v) && v > 0);
@@ -1045,31 +1038,29 @@
         docsForFilter = docsForFilter.filter(item => item.sucursal === selectedBranch);
       }
 
-      let contextText = 'Dashboard principal: gerente mejor evaluado';
-
-      if (selectedManager === 'AUTO') {
-        const best = getBestManager(docsForFilter);
-        if (best) {
-          filteredDocs = docsForFilter.filter(item => item.managerId === best.id);
-          contextText = `Dashboard principal: ${best.gerente} | ${best.sucursal}`;
-        } else {
-          filteredDocs = [];
-          contextText = 'No hay respuestas para el filtro seleccionado';
-        }
-      } else if (selectedManager === 'TODOS') {
+      if (selectedManager === 'TODOS') {
         filteredDocs = [...docsForFilter];
-        contextText = selectedBranch === 'TODAS'
-          ? 'Dashboard agrupado: todos los gerentes'
-          : `Dashboard agrupado: ${selectedBranch}`;
+
+        if (selectedBranch === 'TODAS') {
+          const best = getBestManager(docsForFilter);
+
+          if (best) {
+            dashboardContextBadge.textContent = `Dashboard agrupado: todos los gerentes | Mejor valuado: ${best.gerente} | ${best.sucursal}`;
+          } else {
+            dashboardContextBadge.textContent = 'Dashboard agrupado: todos los gerentes';
+          }
+        } else {
+          dashboardContextBadge.textContent = `Dashboard agrupado: ${selectedBranch}`;
+        }
       } else {
         filteredDocs = docsForFilter.filter(item => item.managerId === selectedManager);
         const manager = getManagerById(selectedManager);
-        contextText = manager
+
+        dashboardContextBadge.textContent = manager
           ? `Dashboard de gerente: ${manager.gerente} | ${manager.sucursal}`
           : 'Dashboard filtrado';
       }
 
-      dashboardContextBadge.textContent = contextText;
       dashboardResponsesBadge.textContent = `Respuestas consideradas: ${filteredDocs.length}`;
       renderDashboard(filteredDocs);
     }
@@ -1083,7 +1074,6 @@
       }
 
       const managerStatsGlobal = getManagerStats(adminDocs);
-      const bestManagerGlobal = getBestManager(adminDocs);
       const allMainAnswers = docs.flatMap(item =>
         Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
           .filter(v => !Number.isNaN(v) && v > 0)
@@ -1105,13 +1095,6 @@
       const overallMessage = getScoreMessage(avgMain10);
 
       const cards = [
-        {
-          title: 'Gerente mejor evaluado',
-          value: bestManagerGlobal ? bestManagerGlobal.gerente : '-',
-          sub: bestManagerGlobal
-            ? `${bestManagerGlobal.sucursal} | ${bestManagerGlobal.avg10.toFixed(1)} / 10`
-            : 'Sin datos'
-        },
         {
           title: 'Total de respuestas',
           value: String(docs.length),
@@ -1353,6 +1336,7 @@
       const q25Score10 = toScore10(q25Avg);
       const q25Perf = interpretation(q25Score10);
       const q25Percent = (q25Avg / 5) * 100;
+
       const q25Card = document.createElement('div');
       q25Card.className = 'metric-card';
       q25Card.innerHTML = `
@@ -1612,7 +1596,7 @@
           return;
         }
 
-        managerFilter.value = 'AUTO';
+        managerFilter.value = 'TODOS';
         branchFilter.value = 'TODAS';
         applyFilters();
       } catch (error) {
