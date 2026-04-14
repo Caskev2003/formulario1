@@ -22,7 +22,15 @@
       --radius: 18px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
 
     body {
       margin: 0;
@@ -52,8 +60,10 @@
 
     h1 {
       margin: 0 0 12px;
-      font-size: clamp(30px, 5vw, 48px);
-      letter-spacing: .5px;
+      font-size: clamp(26px, 5vw, 48px);
+      letter-spacing: .3px;
+      line-height: 1.15;
+      word-break: break-word;
     }
 
     .subtitle {
@@ -69,6 +79,8 @@
       font-weight: 700;
       padding: 16px 22px;
       font-size: 22px;
+      line-height: 1.25;
+      word-break: break-word;
     }
 
     .section-body {
@@ -96,6 +108,7 @@
       display: block;
       font-weight: 700;
       margin-bottom: 8px;
+      line-height: 1.4;
     }
 
     input[type="text"],
@@ -109,6 +122,7 @@
       outline: none;
       font-size: 15px;
       background: #fff;
+      appearance: none;
     }
 
     input:focus,
@@ -131,6 +145,7 @@
       padding: 15px 16px;
       line-height: 1.6;
       margin-top: 12px;
+      word-break: break-word;
     }
 
     .auth-box,
@@ -152,6 +167,9 @@
       border-radius: 999px;
       font-weight: 700;
       font-size: 14px;
+      line-height: 1.35;
+      word-break: break-word;
+      max-width: 100%;
     }
 
     .btn {
@@ -162,6 +180,7 @@
       cursor: pointer;
       transition: .2s ease;
       font-size: 15px;
+      line-height: 1.2;
     }
 
     .btn-primary {
@@ -194,13 +213,14 @@
       font-weight: 700;
       line-height: 1.5;
       margin-bottom: 12px;
+      word-break: break-word;
     }
 
     .scale-grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(60px, 1fr));
       gap: 8px;
-      align-items: center;
+      align-items: stretch;
     }
 
     .scale-grid-3 {
@@ -217,6 +237,10 @@
       text-align: center;
       background: #fff;
       transition: .2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 92px;
     }
 
     .scale-option:hover {
@@ -227,6 +251,7 @@
     .scale-option input {
       transform: scale(1.15);
       margin-bottom: 8px;
+      align-self: center;
     }
 
     .scale-option small {
@@ -234,6 +259,8 @@
       color: var(--muted);
       font-size: 12px;
       margin-top: 4px;
+      line-height: 1.35;
+      word-break: break-word;
     }
 
     .scale-option.bad {
@@ -265,6 +292,7 @@
       border-radius: 14px;
       font-weight: 700;
       display: none;
+      line-height: 1.5;
     }
 
     .status.show { display: block; }
@@ -305,6 +333,7 @@
       font-weight: 700;
       margin-bottom: 10px;
       line-height: 1.45;
+      word-break: break-word;
     }
 
     .overview-value {
@@ -312,12 +341,15 @@
       font-weight: 800;
       margin-bottom: 8px;
       color: #4c1d95;
+      line-height: 1.2;
+      word-break: break-word;
     }
 
     .overview-sub {
       font-size: 14px;
       color: var(--muted);
       line-height: 1.5;
+      word-break: break-word;
     }
 
     .metric-row {
@@ -335,6 +367,9 @@
       padding: 8px 12px;
       font-weight: 700;
       font-size: 13px;
+      line-height: 1.3;
+      word-break: break-word;
+      max-width: 100%;
     }
 
     .pill.score { background: #ede9fe; color: #5b21b6; }
@@ -368,10 +403,12 @@
       font-size: 13px;
       color: var(--muted);
       line-height: 1.5;
+      word-break: break-word;
     }
 
     .response-card h4 {
       margin: 0 0 6px;
+      word-break: break-word;
     }
 
     .response-meta {
@@ -379,6 +416,7 @@
       font-size: 14px;
       margin-bottom: 12px;
       line-height: 1.5;
+      word-break: break-word;
     }
 
     .response-list {
@@ -393,6 +431,7 @@
       font-size: 14px;
       line-height: 1.45;
       border-left: 4px solid #ddd6fe;
+      word-break: break-word;
     }
 
     .question-cards {
@@ -409,6 +448,7 @@
     .chart-wrap {
       height: 380px;
       position: relative;
+      width: 100%;
     }
 
     .chart-wrap.small {
@@ -427,11 +467,166 @@
       background: #faf5ff;
       border-radius: 14px;
       padding: 16px;
+      line-height: 1.5;
+      word-break: break-word;
     }
 
     .filter-box {
       flex: 1;
       min-width: 250px;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(100%, calc(100% - 16px));
+        margin: 14px auto 32px;
+      }
+
+      .card {
+        border-radius: 14px;
+        margin-bottom: 14px;
+      }
+
+      .hero {
+        padding: 18px 14px;
+        border-top-width: 8px;
+      }
+
+      .section-header {
+        padding: 14px 14px;
+        font-size: 18px;
+      }
+
+      .section-body {
+        padding: 14px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+
+      .info {
+        padding: 12px 13px;
+        font-size: 14px;
+      }
+
+      .auth-box,
+      .toolbar,
+      .selector-row,
+      .filter-row,
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .auth-box > div,
+      .toolbar > div,
+      .toolbar > button,
+      .selector-row > div,
+      .filter-row > div,
+      .actions > * {
+        width: 100%;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px 16px;
+      }
+
+      .user-badge {
+        border-radius: 14px;
+        width: 100%;
+      }
+
+      .question {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
+      .scale-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .scale-grid-3 {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .scale-option {
+        min-height: auto;
+        padding: 12px 10px;
+      }
+
+      .metric-card,
+      .chart-card,
+      .response-card,
+      .overview-card {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
+      .overview-value {
+        font-size: 22px;
+      }
+
+      .chart-wrap {
+        height: 260px;
+      }
+
+      .chart-wrap.small {
+        height: 240px;
+      }
+
+      .question-cards {
+        gap: 10px;
+      }
+
+      .metric-row {
+        gap: 8px;
+      }
+
+      .pill {
+        width: 100%;
+        justify-content: center;
+        border-radius: 12px;
+      }
+
+      .filter-box {
+        min-width: 100%;
+      }
+
+      #responseSelector,
+      #branchFilter,
+      #managerFilter,
+      #managerSelection,
+      #puesto,
+      #fecha,
+      #nombre {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      h1 {
+        font-size: 22px;
+      }
+
+      .section-header {
+        font-size: 17px;
+      }
+
+      .overview-value {
+        font-size: 20px;
+      }
+
+      .chart-wrap {
+        height: 230px;
+      }
+
+      .chart-wrap.small {
+        height: 210px;
+      }
     }
   </style>
 </head>
@@ -443,7 +638,8 @@
       <p class="subtitle">Escala de evaluación de preguntas 1 a 21: 1 = Nunca | 2 = Rara vez | 3 = A veces | 4 = Casi siempre | 5 = Siempre</p>
       <p class="subtitle">La pregunta 25 usa tres opciones directas: Muy malo, Regular y Excelente.</p>
       <div class="info">
-        Cada colaborador debe iniciar sesión con su cuenta de Google, seleccionar al gerente que será evaluado y responder una sola vez. 
+        Cada colaborador debe iniciar sesión con su cuenta de Google, seleccionar al gerente que será evaluado y responder una sola vez.
+      </div>
     </div>
 
     <div class="card">
@@ -451,9 +647,9 @@
       <div class="section-body">
         <div class="auth-box">
           <div id="userState" class="user-badge">No has iniciado sesión</div>
-          <div>
-            <button id="btnLogin" class="btn btn-primary">Ingresar con Google</button>
-            <button id="btnLogout" class="btn btn-secondary hidden">Cerrar sesión</button>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; width:100%;">
+            <button id="btnLogin" class="btn btn-primary" style="flex:1;">Ingresar con Google</button>
+            <button id="btnLogout" class="btn btn-secondary hidden" style="flex:1;">Cerrar sesión</button>
           </div>
         </div>
         <div id="authStatus" class="status"></div>
@@ -566,10 +762,6 @@
       <div class="card">
         <div class="section-header">Dashboard del administrador</div>
         <div class="section-body">
-          <div class="info" style="margin-top:0;">
-
-          </div>
-
           <div class="toolbar" style="margin-top:18px;">
             <div class="user-badge">Administrador: <span id="adminEmailLabel">-</span></div>
             <button id="btnExportExcel" class="btn btn-primary" type="button">Exportar Excel del dashboard</button>
@@ -605,7 +797,6 @@
             </div>
             <div class="chart-card">
               <div class="chart-title">Top 10 preguntas con mejor evaluación</div>
-              
               <div class="chart-wrap"><canvas id="topQuestionsChart"></canvas></div>
             </div>
           </div>
@@ -613,7 +804,6 @@
           <div class="dashboard-grid" style="margin-top:18px;">
             <div class="chart-card">
               <div class="chart-title">Preguntas con mayor oportunidad de mejora</div>
-              
               <div class="chart-wrap"><canvas id="opportunityChart"></canvas></div>
             </div>
             <div class="chart-card">
