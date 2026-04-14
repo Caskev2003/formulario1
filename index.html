@@ -628,12 +628,52 @@
         height: 210px;
       }
     }
+    .title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.title-row h1 {
+  flex: 1;
+  text-align: center;
+}
+
+/* LOGOS */
+.logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* 📱 RESPONSIVO PARA CELULAR */
+@media (max-width: 600px) {
+  .title-row {
+    flex-direction: column;
+  }
+
+  .logo {
+    height: 45px;
+  }
+
+  .title-row h1 {
+    font-size: 22px;
+  }
+}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card hero">
-      <h1>EVALUACIÓN DE DESEMPEÑO DEL GERENTE</h1>
+  <div class="title-row">
+    <img src="FARMACIA G&D LOGO.PNG" class="logo left">
+    
+    <h1>EVALUACIÓN DE DESEMPEÑO DEL GERENTE</h1>
+    
+    <img src="logo-gyd.png" class="logo right">
+  </div>
       <p class="subtitle">Formulario con acceso por cuenta de Google y restricción de una sola respuesta por persona.</p>
       <p class="subtitle">Escala de evaluación de preguntas 1 a 21: 1 = Nunca | 2 = Rara vez | 3 = A veces | 4 = Casi siempre | 5 = Siempre</p>
       <div class="info">
