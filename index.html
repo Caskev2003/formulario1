@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Evaluación de Desempeño del Gerente</title>
+  <title>Evaluación de Desempeño</title>
   <style>
     :root {
       --bg: #f3f4f6;
@@ -60,7 +60,7 @@
 
     h1 {
       margin: 0 0 12px;
-      font-size: clamp(20px, 3vw, 32px); /* 🔻 más pequeño */
+      font-size: clamp(20px, 3vw, 32px);
       letter-spacing: .3px;
       line-height: 1.15;
       word-break: break-word;
@@ -148,6 +148,18 @@
       word-break: break-word;
     }
 
+    .info-success {
+      border: 1px solid #86efac;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .info-warning {
+      border: 1px solid #fde68a;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
     .auth-box,
     .toolbar,
     .selector-row,
@@ -170,6 +182,12 @@
       line-height: 1.35;
       word-break: break-word;
       max-width: 100%;
+    }
+
+    .user-badge.success {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #166534;
     }
 
     .btn {
@@ -195,6 +213,20 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .btn-success:hover { background: #15803d; }
+
+    .btn-warning {
+      background: #d97706;
+      color: #fff;
+    }
+
+    .btn-warning:hover { background: #b45309; }
 
     .btn:disabled {
       opacity: .65;
@@ -299,6 +331,7 @@
     .status.success { background: #dcfce7; color: var(--success); }
     .status.error { background: #fee2e2; color: var(--danger); }
     .status.warning { background: #fef3c7; color: var(--warning); }
+    .status.info { background: #dbeafe; color: var(--info); }
 
     .hidden { display: none !important; }
 
@@ -381,6 +414,9 @@
     .pill.mejorar { background: #fee2e2; color: #b91c1c; }
     .pill.manager { background: #ede9fe; color: #6d28d9; }
     .pill.branch { background: #ecfeff; color: #0f766e; }
+    .pill.rrhh { background: #fce7f3; color: #9d174d; }
+    .pill.cajero { background: #dbeafe; color: #1d4ed8; }
+    .pill.almacenista { background: #d1fae5; color: #065f46; }
 
     .bar {
       width: 100%;
@@ -474,6 +510,78 @@
     .filter-box {
       flex: 1;
       min-width: 250px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .title-row h1 {
+      flex: 1;
+      text-align: center;
+    }
+
+    .logo {
+      height: 120px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 780px) {
+      .progress-grid { grid-template-columns: 1fr; }
+    }
+
+    .progress-card {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      transition: .2s ease;
+    }
+
+    .progress-card.pending {
+      border-color: #fcd34d;
+      background: #fffbeb;
+    }
+
+    .progress-card.completed {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .progress-card .name {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .progress-card .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .progress-card .status-badge.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .progress-card .status-badge.completed {
+      background: #dcfce7;
+      color: #166534;
     }
 
     @media (max-width: 640px) {
@@ -596,14 +704,20 @@
         min-width: 100%;
       }
 
-      #responseSelector,
-      #branchFilter,
-      #managerFilter,
-      #managerSelection,
-      #puesto,
-      #fecha,
-      #nombre {
-        font-size: 16px;
+      .title-row {
+        flex-direction: column;
+      }
+
+      .logo {
+        height: 90px;
+      }
+
+      .title-row h1 {
+        font-size: 26px;
+      }
+
+      .progress-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -628,56 +742,20 @@
         height: 210px;
       }
     }
-    .title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.title-row h1 {
-  flex: 1;
-  text-align: center;
-}
-
-/* LOGOS */
-.logo {
-  height: 120px;
-  width: auto;
-  object-fit: contain;
-}
-
-/* 📱 RESPONSIVO PARA CELULAR */
-@media (max-width: 600px) {
-  .title-row {
-    flex-direction: column;
-  }
-
-  .logo {
-    height: 90px;
-  }
-
-  .title-row h1 {
-    font-size: 26px;
-  }
-}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card hero">
-  <div class="title-row">
-    <img src="FARMACIA G&D LOGO.png" class="logo left">
-    
-    <h1>EVALUACIÓN DE DESEMPEÑO DEL GERENTE</h1>
-    
-    <img src="logo-gyd.png" class="logo right">
-  </div>
-      <p class="subtitle">Formulario con acceso por cuenta de Google y restricción de una sola respuesta por persona.</p>
-      <p class="subtitle">Escala de evaluación de preguntas 1 a 21: 1 = Nunca | 2 = Rara vez | 3 = A veces | 4 = Casi siempre | 5 = Siempre</p>
+      <div class="title-row">
+        <img src="FARMACIA G&D LOGO.png" class="logo left" alt="Logo">
+        <h1>EVALUACIÓN DE DESEMPEÑO</h1>
+        <img src="logo-gyd.png" class="logo right" alt="Logo">
+      </div>
+      <p class="subtitle">Formulario con acceso por cuenta de Google y restricción de una sola respuesta por persona evaluada.</p>
+      <p class="subtitle">Escala de evaluación: 1 = Nunca | 2 = Rara vez | 3 = A veces | 4 = Casi siempre | 5 = Siempre</p>
       <div class="info">
-        Cada colaborador debe iniciar sesión con su cuenta de Google, seleccionar al gerente que será evaluado y responder una sola vez.
+        Cada colaborador puede evaluar a múltiples personas, pero <strong>solo una vez por cada evaluado</strong>.
       </div>
     </div>
 
@@ -710,6 +788,7 @@
                 <option value="">Selecciona un puesto</option>
                 <option value="ALMACENISTA">ALMACENISTA</option>
                 <option value="CAJERO/A">CAJERO/A</option>
+                <option value="GERENTE">GERENTE</option>
               </select>
             </div>
           </div>
@@ -720,15 +799,25 @@
               <input id="fecha" name="fecha" type="date" required />
             </div>
             <div>
-              <label for="managerSelection">Selecciona al gerente que será evaluado</label>
+              <label for="managerSelection" id="managerSelectionLabel">Selecciona al evaluado</label>
               <select id="managerSelection" name="managerSelection" required>
-                <option value="">Selecciona sucursal y gerente</option>
+                <option value="">Primero selecciona tu puesto</option>
               </select>
             </div>
           </div>
 
-          <div class="info">
-            Selecciona correctamente la sucursal y el gerente para que la evaluación quede registrada en el dashboard correcto.
+          <!-- Mensaje dinámico según el puesto seleccionado -->
+          <div id="dynamicInfo" class="info">
+            Selecciona tu puesto para ver a quién debes evaluar.
+          </div>
+
+          <!-- Progreso de evaluaciones de RRHH (solo para gerentes) -->
+          <div id="rrhhProgress" class="hidden" style="margin-top: 16px;">
+            <div class="info info-warning">
+              <strong>📊 Progreso de evaluaciones a RRHH</strong><br>
+              Como gerente, debes evaluar a cada miembro del equipo de Recursos Humanos de forma individual.
+            </div>
+            <div id="rrhhProgressGrid" class="progress-grid"></div>
           </div>
         </div>
       </div>
@@ -739,7 +828,7 @@
         <div class="section-header">Preguntas abiertas</div>
         <div class="section-body">
           <div style="margin-bottom: 16px;">
-            <label for="open22">22. ¿Qué es lo que más valoras del gerente?</label>
+            <label for="open22">22. ¿Qué es lo que más valoras del evaluado?</label>
             <textarea id="open22" name="open22" required></textarea>
           </div>
           <div style="margin-bottom: 16px;">
@@ -757,7 +846,7 @@
         <div class="section-header">Evaluación general</div>
         <div class="section-body">
           <div class="question">
-            <div class="question-title">25. ¿Cómo calificarías el desempeño general del gerente?</div>
+            <div class="question-title">25. ¿Cómo calificarías el desempeño general del evaluado?</div>
             <div class="scale-grid-3">
               <label class="scale-option bad">
                 <input type="radio" name="q25" value="MUY_MALO" required>
@@ -793,7 +882,24 @@
     <div id="alreadyAnswered" class="card hidden">
       <div class="section-header">Respuesta registrada</div>
       <div class="section-body">
-        <div class="status success show">Esta cuenta ya respondió el formulario. No se permite una segunda respuesta.</div>
+        <div class="status success show">
+          Ya has evaluado a esta persona. No se permite una segunda evaluación para el mismo evaluado.
+        </div>
+        <div style="margin-top: 16px;">
+          <button id="btnEvaluateAnother" class="btn btn-primary">Evaluar a otra persona</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="allDone" class="card hidden">
+      <div class="section-header">¡Evaluaciones completadas!</div>
+      <div class="section-body">
+        <div class="status success show">
+          🎉 Has evaluado a todos los miembros de Recursos Humanos. ¡Gracias por tu participación!
+        </div>
+        <div style="margin-top: 16px;">
+          <button id="btnGoToDashboard" class="btn btn-primary">Ver dashboard</button>
+        </div>
       </div>
     </div>
 
@@ -814,15 +920,15 @@
               </select>
             </div>
             <div class="filter-box">
-              <label for="managerFilter">Filtrar por gerente</label>
+              <label for="managerFilter">Filtrar por evaluado</label>
               <select id="managerFilter">
-                <option value="TODOS">Todos los gerentes</option>
+                <option value="TODOS">Todos los evaluados</option>
               </select>
             </div>
           </div>
 
           <div class="filter-row" style="margin-top:14px;">
-            <div class="user-badge" id="dashboardContextBadge">Dashboard agrupado: todos los gerentes</div>
+            <div class="user-badge" id="dashboardContextBadge">Dashboard agrupado: todos los evaluados</div>
             <div class="user-badge" id="dashboardResponsesBadge">Respuestas consideradas: 0</div>
           </div>
 
@@ -847,7 +953,7 @@
             </div>
             <div class="chart-card">
               <div class="chart-title">Distribución de evaluación general</div>
-              <div class="soft-text">Frecuencia de respuestas de la pregunta 25 usando Muy malo, Regular y Excelente.</div>
+              <div class="soft-text">Frecuencia de respuestas de la pregunta 25.</div>
               <div class="chart-wrap small"><canvas id="generalDistributionChart"></canvas></div>
             </div>
           </div>
@@ -856,7 +962,7 @@
 
           <div class="chart-card">
             <div class="chart-title">Detalle por pregunta</div>
-            <div class="soft-text">Cada tarjeta muestra promedio, calificación sobre 10, cantidad de respuestas y una interpretación cuidada.</div>
+            <div class="soft-text">Cada tarjeta muestra promedio, calificación sobre 10, cantidad de respuestas y una interpretación.</div>
             <div id="summaryCards" class="question-cards"></div>
           </div>
         </div>
@@ -869,7 +975,7 @@
             <div style="flex:1; min-width:280px;">
               <label for="responseSelector">Selecciona una respuesta</label>
               <select id="responseSelector">
-                <option value="">Selecciona nombre, correo y gerente</option>
+                <option value="">Selecciona nombre, correo y evaluado</option>
               </select>
             </div>
             <div class="user-badge" id="selectedResponseBadge">Sin selección</div>
@@ -898,11 +1004,13 @@
       doc,
       getDoc,
       setDoc,
+      addDoc,
       collection,
       getDocs,
       serverTimestamp,
       query,
-      orderBy
+      orderBy,
+      where
     } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -917,28 +1025,61 @@
     const ADMIN_EMAILS = ['rhdgardi@gmail.com'];
     const ALLOWED_DOMAIN = '';
 
+    // ============ CONFIGURACIÓN DE EVALUADOS ============
+    // Gerentes (para almacenistas y cajeros)
     const MANAGERS = [
       {
         id: 'tapachula_luis_domingo',
         sucursal: 'SUCURSAL TAPACHULA',
-        gerente: 'LUIS DOMINGO ALVARADO DE LA CRUZ'
+        nombre: 'LUIS DOMINGO ALVARADO DE LA CRUZ',
+        tipo: 'GERENTE'
       },
       {
         id: 'toscana_luis_fernando',
         sucursal: 'SUCURSAL TOSCANA',
-        gerente: 'LUIS FERNANDO GUILLEN BANTE'
+        nombre: 'LUIS FERNANDO GUILLEN BANTE',
+        tipo: 'GERENTE'
       },
       {
         id: 'ciudad_hidalgo_nicolas',
         sucursal: 'SUCURSAL CIUDAD HIDALGO',
-        gerente: 'NICOLAS ALBERTO ANTONIO VELZQUEZ'
+        nombre: 'NICOLAS ALBERTO ANTONIO VELZQUEZ',
+        tipo: 'GERENTE'
       },
       {
         id: 'tuxtla_alejandro',
         sucursal: 'SUCURSAL TUXTLA GUTIERREZ',
-        gerente: 'ALEJANDRO RODRIGUEZ CASTILLEJOS'
+        nombre: 'ALEJANDRO RODRIGUEZ CASTILLEJOS',
+        tipo: 'GERENTE'
       }
     ];
+
+    // Recursos Humanos (para gerentes)
+    const HR_TEAM = [
+      {
+        id: 'hr_angel_esteban',
+        sucursal: 'RECURSOS HUMANOS',
+        nombre: 'ANGEL ESTEBAN SANTIAGO VAZQUEZ',
+        tipo: 'RRHH'
+      },
+      {
+        id: 'hr_hary_annel',
+        sucursal: 'RECURSOS HUMANOS',
+        nombre: 'HARY ANNEL DIAZ CHANG',
+        tipo: 'RRHH'
+      },
+      {
+        id: 'hr_juan_luis',
+        sucursal: 'RECURSOS HUMANOS',
+        nombre: 'JUAN LUIS LOPEZ VICTORIA',
+        tipo: 'RRHH'
+      }
+    ];
+
+    // Combinamos todos los evaluados
+    const ALL_EVALUADOS = [...MANAGERS, ...HR_TEAM];
+
+    // ============ FIN CONFIGURACIÓN ============
 
     const Q25_OPTIONS = {
       MUY_MALO: { label: 'Muy malo', score: 1 },
@@ -960,7 +1101,7 @@
 
     const sections = [
       { title: '1. Liderazgo', questions: [
-        'El gerente motiva al equipo para alcanzar los objetivos.',
+        'Motiva al equipo para alcanzar los objetivos.',
         'Da el ejemplo con su actitud y comportamiento.',
         'Toma decisiones de manera justa y oportuna.'
       ]},
@@ -1001,6 +1142,7 @@
     const questionSections = document.getElementById('questionSections');
     const surveyForm = document.getElementById('surveyForm');
     const alreadyAnswered = document.getElementById('alreadyAnswered');
+    const allDone = document.getElementById('allDone');
     const btnLogin = document.getElementById('btnLogin');
     const btnLogout = document.getElementById('btnLogout');
     const userState = document.getElementById('userState');
@@ -1016,15 +1158,23 @@
     const adminEmailLabel = document.getElementById('adminEmailLabel');
     const btnExportExcel = document.getElementById('btnExportExcel');
     const managerSelection = document.getElementById('managerSelection');
+    const managerSelectionLabel = document.getElementById('managerSelectionLabel');
     const managerFilter = document.getElementById('managerFilter');
     const branchFilter = document.getElementById('branchFilter');
     const dashboardContextBadge = document.getElementById('dashboardContextBadge');
     const dashboardResponsesBadge = document.getElementById('dashboardResponsesBadge');
+    const dynamicInfo = document.getElementById('dynamicInfo');
+    const puestoSelect = document.getElementById('puesto');
+    const rrhhProgress = document.getElementById('rrhhProgress');
+    const rrhhProgressGrid = document.getElementById('rrhhProgressGrid');
+    const btnEvaluateAnother = document.getElementById('btnEvaluateAnother');
+    const btnGoToDashboard = document.getElementById('btnGoToDashboard');
 
     let currentUser = null;
     let adminDocs = [];
     let filteredDocs = [];
     let charts = {};
+    let userResponses = [];
 
     function showStatus(el, type, text) {
       el.className = `status show ${type}`;
@@ -1044,7 +1194,7 @@
     }
 
     function getScoreMessage(score10) {
-      if (score10 < 1.5) return 'Existe una oportunidad clara para acompañar al gerente con apoyo cercano y metas muy puntuales.';
+      if (score10 < 1.5) return 'Existe una oportunidad clara para acompañar con apoyo cercano y metas muy puntuales.';
       if (score10 < 2.5) return 'Conviene reforzar varias prácticas clave con seguimiento frecuente y retroalimentación concreta.';
       if (score10 < 3.5) return 'Se observan bases iniciales que pueden fortalecerse con guía y mayor consistencia.';
       if (score10 < 4.5) return 'Hay señales positivas; con ajustes enfocados el desempeño puede crecer de forma notable.';
@@ -1058,14 +1208,14 @@
 
     function interpretation(score10) {
       if (score10 >= 9) return { text: 'Excelente', cls: 'excelente' };
-      if (score10 >= 7) return { text: 'Vas muy bien', cls: 'muybien' };
+      if (score10 >= 7) return { text: 'Muy bien', cls: 'muybien' };
       if (score10 >= 5) return { text: 'Buen avance', cls: 'regular' };
       return { text: 'Área por fortalecer', cls: 'mejorar' };
     }
 
     function getQuestionText(n) {
       if (n >= 1 && n <= 21) return flatQuestions[n - 1];
-      if (n === 25) return '¿Cómo calificarías el desempeño general del gerente?';
+      if (n === 25) return '¿Cómo calificarías el desempeño general del evaluado?';
       return `Pregunta ${n}`;
     }
 
@@ -1130,28 +1280,184 @@
       charts = {};
     }
 
-    function populateManagerSelects() {
-      managerSelection.innerHTML = '<option value="">Selecciona sucursal y gerente</option>';
-      managerFilter.innerHTML = `
-        <option value="TODOS">Todos los gerentes</option>
-      `;
+    // ============ OBTENER RESPUESTAS DEL USUARIO ============
+    async function loadUserResponses(user) {
+      if (!user) return [];
+      try {
+        const q = query(
+          collection(db, 'responses'),
+          where('uid', '==', user.uid)
+        );
+        const snap = await getDocs(q);
+        userResponses = snap.docs.map(d => d.data());
+        return userResponses;
+      } catch (error) {
+        console.error('Error cargando respuestas del usuario:', error);
+        return [];
+      }
+    }
+
+    // ============ ACTUALIZAR PROGRESO DE RRHH ============
+    function updateRRHHProgress() {
+      const puesto = puestoSelect.value;
+      if (puesto !== 'GERENTE') {
+        rrhhProgress.classList.add('hidden');
+        return;
+      }
+
+      rrhhProgress.classList.remove('hidden');
+      rrhhProgressGrid.innerHTML = '';
+
+      const evaluatedIds = userResponses.map(r => r.evaluadoId);
+
+      HR_TEAM.forEach(member => {
+        const isCompleted = evaluatedIds.includes(member.id);
+        const card = document.createElement('div');
+        card.className = `progress-card ${isCompleted ? 'completed' : 'pending'}`;
+        card.innerHTML = `
+          <div class="name">${member.nombre}</div>
+          <span class="status-badge ${isCompleted ? 'completed' : 'pending'}">
+            ${isCompleted ? '✅ Evaluado' : '⏳ Pendiente'}
+          </span>
+        `;
+        rrhhProgressGrid.appendChild(card);
+      });
+
+      const allCompleted = HR_TEAM.every(m => evaluatedIds.includes(m.id));
+      if (allCompleted && HR_TEAM.length > 0) {
+        allDone.classList.remove('hidden');
+        surveyForm.classList.add('hidden');
+        alreadyAnswered.classList.add('hidden');
+      } else {
+        allDone.classList.add('hidden');
+      }
+    }
+
+    // ============ ACTUALIZAR SELECTOR SEGÚN PUESTO ============
+    function updateEvaluadosSelector() {
+      const puesto = puestoSelect.value;
+      const select = managerSelection;
+      const label = managerSelectionLabel;
+      
+      select.innerHTML = '';
+      
+      // ============ ALMACENISTA y CAJERO/A ============
+      if (puesto === 'ALMACENISTA' || puesto === 'CAJERO/A') {
+        const tipoLabel = puesto === 'ALMACENISTA' ? 'ALMACENISTA' : 'CAJERO/A';
+        label.textContent = `Selecciona al gerente que será evaluado (${tipoLabel})`;
+        
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Selecciona sucursal y gerente';
+        select.appendChild(option);
+        
+        MANAGERS.forEach(item => {
+          const opt = document.createElement('option');
+          opt.value = item.id;
+          opt.textContent = `${item.sucursal} — GERENTE: ${item.nombre}`;
+          select.appendChild(opt);
+        });
+        
+        const icon = puesto === 'ALMACENISTA' ? '📦' : '💰';
+        dynamicInfo.innerHTML = `
+          <strong>${icon} Evalúas a un GERENTE</strong><br>
+          Selecciona la sucursal y el gerente que deseas evaluar. 
+          Las preguntas están enfocadas en su desempeño como líder.
+        `;
+        rrhhProgress.classList.add('hidden');
+        select.disabled = false;
+        
+      // ============ GERENTE ============
+      } else if (puesto === 'GERENTE') {
+        label.textContent = 'Selecciona al integrante de RRHH que será evaluado';
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Selecciona un integrante de Recursos Humanos';
+        select.appendChild(option);
+        
+        const evaluatedIds = userResponses.map(r => r.evaluadoId);
+        const pendingMembers = HR_TEAM.filter(m => !evaluatedIds.includes(m.id));
+        
+        if (pendingMembers.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = '✅ ¡Ya evaluaste a todos!';
+          select.appendChild(opt);
+          select.disabled = true;
+        } else {
+          select.disabled = false;
+          pendingMembers.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = `RRHH — ${item.nombre}`;
+            select.appendChild(opt);
+          });
+        }
+        
+        dynamicInfo.innerHTML = `
+          <strong>📋 Evalúas a un integrante de RECURSOS HUMANOS</strong><br>
+          Selecciona al miembro del equipo de RRHH que deseas evaluar.
+          <br><small>⚠️ Solo puedes evaluar a cada persona una vez.</small>
+        `;
+        
+        updateRRHHProgress();
+        
+      // ============ NINGUNO ============
+      } else {
+        label.textContent = 'Selecciona al evaluado';
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Primero selecciona tu puesto';
+        select.appendChild(option);
+        select.disabled = false;
+        dynamicInfo.innerHTML = `
+          <strong>👤 Selecciona tu puesto primero</strong><br>
+          Elige si eres ALMACENISTA, CAJERO/A (evaluarás a un gerente) o GERENTE (evaluarás a RRHH).
+        `;
+        rrhhProgress.classList.add('hidden');
+      }
+    }
+
+    // ============ RESET PARA NUEVA EVALUACIÓN ============
+    function resetForNewEvaluation() {
+      alreadyAnswered.classList.add('hidden');
+      allDone.classList.add('hidden');
+      surveyForm.classList.remove('hidden');
+      
+      surveyForm.reset();
+      document.getElementById('fecha').value = todayISO();
+      
+      document.querySelectorAll('input[name="q25"]').forEach(el => el.checked = false);
+      
+      document.getElementById('open22').value = '';
+      document.getElementById('open23').value = '';
+      document.getElementById('open24').value = '';
+      document.getElementById('finalComments').value = '';
+      
+      loadUserResponses(currentUser).then(() => {
+        updateEvaluadosSelector();
+        showStatus(authStatus, 'info', 'Puedes evaluar a otra persona. Selecciona al evaluado y responde el formulario.');
+      });
+      
+      hideStatus(formStatus);
+    }
+
+    // ============ POBLAR FILTROS ============
+    function populateFilterSelects() {
+      managerFilter.innerHTML = `<option value="TODOS">Todos los evaluados</option>`;
       branchFilter.innerHTML = `<option value="TODAS">Todas las sucursales</option>`;
 
-      MANAGERS.forEach(item => {
-        const label = `${item.sucursal} — GERENTE: ${item.gerente}`;
-
-        const optForm = document.createElement('option');
-        optForm.value = item.id;
-        optForm.textContent = label;
-        managerSelection.appendChild(optForm);
-
+      ALL_EVALUADOS.forEach(item => {
+        const label = `${item.sucursal} — ${item.nombre}`;
+        
         const optFilter = document.createElement('option');
         optFilter.value = item.id;
         optFilter.textContent = label;
         managerFilter.appendChild(optFilter);
       });
 
-      [...new Set(MANAGERS.map(item => item.sucursal))].forEach(sucursal => {
+      const sucursales = [...new Set(ALL_EVALUADOS.map(item => item.sucursal))];
+      sucursales.forEach(sucursal => {
         const opt = document.createElement('option');
         opt.value = sucursal;
         opt.textContent = sucursal;
@@ -1159,6 +1465,7 @@
       });
     }
 
+    // ============ CONSTRUIR PREGUNTAS ============
     function buildQuestions() {
       let questionNumber = 1;
       questionSections.innerHTML = '';
@@ -1199,9 +1506,11 @@
       }
     }
 
+    // ============ RESET UI ============
     function resetUI() {
       surveyForm.classList.add('hidden');
       alreadyAnswered.classList.add('hidden');
+      allDone.classList.add('hidden');
       adminPanel.classList.add('hidden');
       btnLogout.classList.add('hidden');
       btnLogin.classList.remove('hidden');
@@ -1209,18 +1518,30 @@
       hideStatus(authStatus);
       hideStatus(formStatus);
       destroyCharts();
+      rrhhProgress.classList.add('hidden');
     }
 
-    async function checkExistingResponse(user) {
-      const responseRef = doc(db, 'responses', user.uid);
-      const snap = await getDoc(responseRef);
-      return snap.exists();
+    // ============ VERIFICAR RESPUESTA EXISTENTE ============
+    async function checkExistingResponseForEvaluado(user, evaluadoId) {
+      try {
+        const q = query(
+          collection(db, 'responses'),
+          where('uid', '==', user.uid),
+          where('evaluadoId', '==', evaluadoId)
+        );
+        const snap = await getDocs(q);
+        return !snap.empty;
+      } catch (error) {
+        console.error('Error verificando respuesta:', error);
+        return false;
+      }
     }
 
-    function getManagerById(id) {
-      return MANAGERS.find(item => item.id === id) || null;
+    function getEvaluadoById(id) {
+      return ALL_EVALUADOS.find(item => item.id === id) || null;
     }
 
+    // ============ FUNCIONES DEL DASHBOARD ============
     function calculateDocGlobalScore(item) {
       const mainValues = Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
         .filter(v => !Number.isNaN(v) && v > 0);
@@ -1229,12 +1550,12 @@
       return toScore10(average(combined));
     }
 
-    function getManagerStats(docs) {
-      return MANAGERS.map(manager => {
-        const items = docs.filter(d => d.managerId === manager.id);
+    function getEvaluadoStats(docs) {
+      return ALL_EVALUADOS.map(evaluado => {
+        const items = docs.filter(d => d.evaluadoId === evaluado.id);
         const scores = items.map(calculateDocGlobalScore).filter(v => !Number.isNaN(v) && v > 0);
         return {
-          ...manager,
+          ...evaluado,
           docs: items,
           count: items.length,
           avg10: Number(average(scores).toFixed(2))
@@ -1242,8 +1563,8 @@
       }).filter(item => item.count > 0);
     }
 
-    function getBestManager(docs) {
-      const stats = getManagerStats(docs).sort((a, b) => {
+    function getBestEvaluado(docs) {
+      const stats = getEvaluadoStats(docs).sort((a, b) => {
         if (b.avg10 !== a.avg10) return b.avg10 - a.avg10;
         return b.count - a.count;
       });
@@ -1258,7 +1579,7 @@
       }
 
       const selectedBranch = branchFilter.value;
-      const selectedManager = managerFilter.value;
+      const selectedEvaluado = managerFilter.value;
 
       let docsForFilter = [...adminDocs];
 
@@ -1266,26 +1587,24 @@
         docsForFilter = docsForFilter.filter(item => item.sucursal === selectedBranch);
       }
 
-      if (selectedManager === 'TODOS') {
+      if (selectedEvaluado === 'TODOS') {
         filteredDocs = [...docsForFilter];
 
         if (selectedBranch === 'TODAS') {
-          const best = getBestManager(docsForFilter);
-
+          const best = getBestEvaluado(docsForFilter);
           if (best) {
-            dashboardContextBadge.textContent = `Dashboard agrupado: todos los gerentes | Mejor valuado: ${best.gerente} | ${best.sucursal}`;
+            dashboardContextBadge.textContent = `Dashboard agrupado: todos los evaluados | Mejor valuado: ${best.nombre} | ${best.sucursal}`;
           } else {
-            dashboardContextBadge.textContent = 'Dashboard agrupado: todos los gerentes';
+            dashboardContextBadge.textContent = 'Dashboard agrupado: todos los evaluados';
           }
         } else {
           dashboardContextBadge.textContent = `Dashboard agrupado: ${selectedBranch}`;
         }
       } else {
-        filteredDocs = docsForFilter.filter(item => item.managerId === selectedManager);
-        const manager = getManagerById(selectedManager);
-
-        dashboardContextBadge.textContent = manager
-          ? `Dashboard de gerente: ${manager.gerente} | ${manager.sucursal}`
+        filteredDocs = docsForFilter.filter(item => item.evaluadoId === selectedEvaluado);
+        const evaluado = getEvaluadoById(selectedEvaluado);
+        dashboardContextBadge.textContent = evaluado
+          ? `Dashboard de: ${evaluado.nombre} | ${evaluado.sucursal}`
           : 'Dashboard filtrado';
       }
 
@@ -1301,7 +1620,7 @@
         return;
       }
 
-      const managerStatsGlobal = getManagerStats(adminDocs);
+      const evaluadoStatsGlobal = getEvaluadoStats(adminDocs);
       const allMainAnswers = docs.flatMap(item =>
         Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
           .filter(v => !Number.isNaN(v) && v > 0)
@@ -1349,9 +1668,9 @@
           sub: weakestArea ? `${weakestArea.avg10.toFixed(1)} / 10` : 'Sin datos'
         },
         {
-          title: 'Gerentes con respuestas',
-          value: String(managerStatsGlobal.length),
-          sub: 'Gerentes que ya cuentan con al menos una evaluación registrada.'
+          title: 'Evaluados con respuestas',
+          value: String(evaluadoStatsGlobal.length),
+          sub: 'Personas que ya cuentan con al menos una evaluación registrada.'
         },
         {
           title: 'Interpretación',
@@ -1568,7 +1887,7 @@
       const q25Card = document.createElement('div');
       q25Card.className = 'metric-card';
       q25Card.innerHTML = `
-        <div class="metric-title">25. ¿Cómo calificarías el desempeño general del gerente?</div>
+        <div class="metric-title">25. ¿Cómo calificarías el desempeño general del evaluado?</div>
         <div class="metric-row">
           <span class="pill avg">Promedio: ${q25Avg.toFixed(2)} / 5</span>
           <span class="pill score">Calificación: ${q25Score10.toFixed(1)} / 10</span>
@@ -1582,12 +1901,12 @@
     }
 
     function renderSelector(docs) {
-      responseSelector.innerHTML = '<option value="">Selecciona nombre, correo y gerente</option>';
+      responseSelector.innerHTML = '<option value="">Selecciona nombre, correo y evaluado</option>';
 
       docs.forEach((item, index) => {
         const option = document.createElement('option');
         option.value = String(index);
-        option.textContent = `${item.nombre || 'Sin nombre'} — ${item.email || 'Sin correo'} — ${item.gerente || 'Sin gerente'}`;
+        option.textContent = `${item.nombre || 'Sin nombre'} — ${item.email || 'Sin correo'} — ${item.evaluadoNombre || 'Sin evaluado'}`;
         responseSelector.appendChild(option);
       });
 
@@ -1627,18 +1946,18 @@
           Puesto: ${item.puesto || '-'}<br>
           Fecha de realización: ${item.fecha || '-'}<br>
           Sucursal: ${item.sucursal || '-'}<br>
-          Gerente evaluado: ${item.gerente || '-'}
+          Evaluado: ${item.evaluadoNombre || '-'}
         </div>
         <div class="metric-row" style="margin-bottom: 14px;">
           <span class="pill avg">Promedio global: ${avgMain10.toFixed(1)} / 10</span>
           <span class="pill score">Pregunta 25: ${general10.toFixed(1)} / 10</span>
-          <span class="pill manager">${item.gerente || '-'}</span>
+          <span class="pill ${item.evaluadoTipo === 'RRHH' ? 'rrhh' : 'manager'}">${item.evaluadoTipo || '-'}</span>
           <span class="pill branch">${item.sucursal || '-'}</span>
           <span class="pill ${interpretation(avgMain10).cls}">${interpretation(avgMain10).text}</span>
         </div>
         <div class="info" style="margin-top:0; margin-bottom:16px;">${softMessage}</div>
         <div class="response-list">${answersHtml}</div>
-        <div class="response-item" style="margin-top: 10px;"><strong>25. ¿Cómo calificarías el desempeño general del gerente?</strong><br>Respuesta: ${getQ25Label(item)}</div>
+        <div class="response-item" style="margin-top: 10px;"><strong>25. ¿Cómo calificarías el desempeño general del evaluado?</strong><br>Respuesta: ${getQ25Label(item)}</div>
         <div class="response-item"><strong>22. Lo que más valora:</strong><br>${item.open22 || ''}</div>
         <div class="response-item"><strong>23. Aspectos a mejorar:</strong><br>${item.open23 || ''}</div>
         <div class="response-item"><strong>24. Sugerencias para ambiente laboral:</strong><br>${item.open24 || ''}</div>
@@ -1658,6 +1977,7 @@
       }
     }
 
+    // ============ EXPORTAR EXCEL ============
     async function exportDashboardExcel() {
       if (!filteredDocs.length) {
         alert('No hay datos para exportar con el filtro actual.');
@@ -1742,7 +2062,8 @@
           { header: 'Puesto', key: 'puesto', width: 22 },
           { header: 'Fecha', key: 'fecha', width: 16 },
           { header: 'Sucursal', key: 'sucursal', width: 28 },
-          { header: 'Gerente', key: 'gerente', width: 42 },
+          { header: 'Evaluado', key: 'evaluadoNombre', width: 42 },
+          { header: 'Tipo', key: 'evaluadoTipo', width: 16 },
           ...Array.from({ length: 21 }, (_, idx) => ({ header: 'P' + (idx + 1), key: 'q' + (idx + 1), width: 10 })),
           { header: 'P25', key: 'q25', width: 18 },
           { header: 'Q22', key: 'open22', width: 42 },
@@ -1758,7 +2079,8 @@
             puesto: item.puesto || '',
             fecha: item.fecha || '',
             sucursal: item.sucursal || '',
-            gerente: item.gerente || '',
+            evaluadoNombre: item.evaluadoNombre || '',
+            evaluadoTipo: item.evaluadoTipo || '',
             q25: getQ25Label(item),
             open22: item.open22 || '',
             open23: item.open23 || '',
@@ -1795,7 +2117,7 @@
         }
 
         const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), `dashboard-evaluacion-gerente-${todayISO()}.xlsx`);
+        saveAs(new Blob([buffer]), `dashboard-evaluacion-${todayISO()}.xlsx`);
       } catch (error) {
         console.error(error);
         alert('No fue posible exportar el Excel. Revisa la consola del navegador.');
@@ -1804,6 +2126,7 @@
       }
     }
 
+    // ============ CARGAR PANEL ADMIN ============
     async function loadAdminPanel() {
       summaryCards.innerHTML = '';
       individualResponses.innerHTML = '';
@@ -1829,10 +2152,11 @@
         applyFilters();
       } catch (error) {
         console.error(error);
-        summaryCards.innerHTML = '<div class="empty-state">No fue posible cargar el panel de resultados. Revisa las reglas de Firestore y que el correo administrador tenga permiso para leer todas las respuestas.</div>';
+        summaryCards.innerHTML = '<div class="empty-state">No fue posible cargar el panel de resultados. Revisa las reglas de Firestore.</div>';
       }
     }
 
+    // ============ EVENT LISTENERS ============
     responseSelector.addEventListener('change', (e) => {
       renderSingleResponse(Number(e.target.value));
     });
@@ -1840,6 +2164,18 @@
     managerFilter.addEventListener('change', applyFilters);
     branchFilter.addEventListener('change', applyFilters);
     btnExportExcel.addEventListener('click', exportDashboardExcel);
+
+    btnEvaluateAnother.addEventListener('click', resetForNewEvaluation);
+    btnGoToDashboard.addEventListener('click', () => {
+      const email = (currentUser?.email || '').toLowerCase();
+      if (ADMIN_EMAILS.map(v => v.toLowerCase()).includes(email)) {
+        adminPanel.classList.remove('hidden');
+        loadAdminPanel();
+      }
+      allDone.classList.add('hidden');
+      surveyForm.classList.add('hidden');
+      alreadyAnswered.classList.add('hidden');
+    });
 
     btnLogin.addEventListener('click', async () => {
       hideStatus(authStatus);
@@ -1851,7 +2187,7 @@
           showStatus(authStatus, 'error', `Solo se permiten cuentas del dominio ${ALLOWED_DOMAIN}.`);
         }
       } catch (error) {
-        showStatus(authStatus, 'error', 'No fue posible iniciar sesión con Google. Revisa la configuración de Firebase.');
+        showStatus(authStatus, 'error', 'No fue posible iniciar sesión con Google.');
         console.error(error);
       }
     });
@@ -1860,18 +2196,24 @@
       await signOut(auth);
     });
 
+    // ============ AUTH STATE ============
     onAuthStateChanged(auth, async (user) => {
       resetUI();
       buildQuestions();
-      populateManagerSelects();
+      populateFilterSelects();
       document.getElementById('fecha').value = todayISO();
 
-      if (!user) return;
+      if (!user) {
+        updateEvaluadosSelector();
+        return;
+      }
 
       currentUser = user;
       userState.textContent = `Sesión iniciada: ${user.email}`;
       btnLogin.classList.add('hidden');
       btnLogout.classList.remove('hidden');
+
+      await loadUserResponses(user);
 
       const email = (user.email || '').toLowerCase();
       const isAdmin = ADMIN_EMAILS.map(v => v.toLowerCase()).includes(email);
@@ -1882,18 +2224,14 @@
         await loadAdminPanel();
       }
 
-      const already = await checkExistingResponse(user);
-      if (already) {
-        alreadyAnswered.classList.remove('hidden');
-        showStatus(authStatus, 'warning', 'Esta cuenta ya respondió anteriormente.');
-        return;
-      }
-
       surveyForm.classList.remove('hidden');
       showStatus(authStatus, 'success', 'Has iniciado sesión correctamente. Ya puedes responder la evaluación.');
       document.getElementById('nombre').value = user.displayName || '';
+
+      updateEvaluadosSelector();
     });
 
+    // ============ ENVÍO DEL FORMULARIO ============
     surveyForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       hideStatus(formStatus);
@@ -1905,20 +2243,20 @@
 
       try {
         btnSubmit.disabled = true;
-        const existing = await checkExistingResponse(currentUser);
-        if (existing) {
-          surveyForm.classList.add('hidden');
-          alreadyAnswered.classList.remove('hidden');
-          showStatus(formStatus, 'warning', 'Esta cuenta ya había enviado una respuesta.');
+        
+        const formData = new FormData(surveyForm);
+        const selectedEvaluadoId = String(formData.get('managerSelection') || '');
+        const evaluadoInfo = getEvaluadoById(selectedEvaluadoId);
+
+        if (!evaluadoInfo) {
+          showStatus(formStatus, 'error', 'Debes seleccionar a la persona que será evaluada.');
+          btnSubmit.disabled = false;
           return;
         }
 
-        const formData = new FormData(surveyForm);
-        const selectedManagerId = String(formData.get('managerSelection') || '');
-        const managerInfo = getManagerById(selectedManagerId);
-
-        if (!managerInfo) {
-          showStatus(formStatus, 'error', 'Debes seleccionar la sucursal y el gerente que será evaluado.');
+        const alreadyEvaluated = await checkExistingResponseForEvaluado(currentUser, evaluadoInfo.id);
+        if (alreadyEvaluated) {
+          showStatus(formStatus, 'warning', 'Ya evaluaste a esta persona. No puedes evaluarla nuevamente.');
           btnSubmit.disabled = false;
           return;
         }
@@ -1937,10 +2275,11 @@
           nombre: String(formData.get('nombre') || '').trim(),
           puesto: String(formData.get('puesto') || '').trim(),
           fecha: String(formData.get('fecha') || ''),
-          managerId: managerInfo.id,
-          sucursal: managerInfo.sucursal,
-          gerente: managerInfo.gerente,
-          managerDisplay: `${managerInfo.sucursal} — GERENTE: ${managerInfo.gerente}`,
+          evaluadoId: evaluadoInfo.id,
+          sucursal: evaluadoInfo.sucursal,
+          evaluadoNombre: evaluadoInfo.nombre,
+          evaluadoTipo: evaluadoInfo.tipo,
+          evaluadoDisplay: `${evaluadoInfo.sucursal} — ${evaluadoInfo.nombre}`,
           open22: String(formData.get('open22') || '').trim(),
           open23: String(formData.get('open23') || '').trim(),
           open24: String(formData.get('open24') || '').trim(),
@@ -1952,30 +2291,63 @@
           submittedAt: serverTimestamp()
         };
 
-        await setDoc(doc(db, 'responses', currentUser.uid), payload);
+        // ✅ Usar addDoc en lugar de setDoc
+        const docRef = await addDoc(collection(db, 'responses'), payload);
+        console.log('✅ Evaluación guardada con ID:', docRef.id);
 
-        surveyForm.reset();
-        document.getElementById('fecha').value = todayISO();
-        surveyForm.classList.add('hidden');
-        alreadyAnswered.classList.remove('hidden');
-        showStatus(formStatus, 'success', 'Tu evaluación fue enviada correctamente.');
+        await loadUserResponses(currentUser);
+
+        const evaluatedIds = userResponses.map(r => r.evaluadoId);
+        const allRRHHEvaluated = HR_TEAM.every(m => evaluatedIds.includes(m.id));
+
+        if (allRRHHEvaluated && evaluadoInfo.tipo === 'RRHH') {
+          surveyForm.classList.add('hidden');
+          alreadyAnswered.classList.add('hidden');
+          allDone.classList.remove('hidden');
+          showStatus(formStatus, 'success', '🎉 ¡Has evaluado a todos los miembros de RRHH!');
+        } else {
+          surveyForm.classList.add('hidden');
+          alreadyAnswered.classList.remove('hidden');
+          showStatus(formStatus, 'success', `✅ Evaluación guardada para ${evaluadoInfo.nombre}.`);
+          
+          const msgDiv = alreadyAnswered.querySelector('.status');
+          if (msgDiv) {
+            const remaining = HR_TEAM.filter(m => !evaluatedIds.includes(m.id));
+            let extraMsg = '';
+            if (remaining.length > 0 && evaluadoInfo.tipo === 'RRHH') {
+              extraMsg = `<br><br>⏳ Pendientes: ${remaining.map(m => m.nombre).join(', ')}`;
+            }
+            msgDiv.innerHTML = `
+              ✅ Has evaluado a <strong>${evaluadoInfo.nombre}</strong>.<br>
+              ${evaluadoInfo.tipo === 'RRHH' ? 'Recuerda que debes evaluar a cada miembro de RRHH de forma individual.' : 'Puedes evaluar a otro gerente si lo deseas.'}${extraMsg}
+            `;
+          }
+        }
 
         const email = (currentUser.email || '').toLowerCase();
         if (ADMIN_EMAILS.map(v => v.toLowerCase()).includes(email)) {
-          adminPanel.classList.remove('hidden');
           await loadAdminPanel();
         }
+
+        updateEvaluadosSelector();
+
       } catch (error) {
-        console.error(error);
-        showStatus(formStatus, 'error', 'Ocurrió un error al guardar la evaluación. Revisa la configuración de Firestore y vuelve a intentarlo.');
+        console.error('❌ Error detallado:', error);
+        showStatus(formStatus, 'error', `Error: ${error.message || 'Ocurrió un error al guardar la evaluación.'}`);
       } finally {
         btnSubmit.disabled = false;
       }
     });
 
+    // ============ INICIALIZACIÓN ============
     buildQuestions();
-    populateManagerSelects();
+    updateEvaluadosSelector();
+    populateFilterSelects();
     document.getElementById('fecha').value = todayISO();
+
+    puestoSelect.addEventListener('change', () => {
+      updateEvaluadosSelector();
+    });
   </script>
 </body>
 </html>
