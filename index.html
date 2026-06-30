@@ -584,6 +584,67 @@
       color: #166534;
     }
 
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: #f3f4f6;
+      padding: 4px;
+      border-radius: 14px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: .3s ease;
+      background: transparent;
+      color: var(--muted);
+      min-width: 140px;
+    }
+
+    .tab-btn:hover {
+      background: rgba(109, 40, 217, 0.08);
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+    }
+
+    .tab-btn .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 0 10px;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    .tab-btn.active .badge {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tab-content .section-body {
+      padding: 22px;
+    }
+
     @media (max-width: 640px) {
       .container {
         width: min(100%, calc(100% - 16px));
@@ -719,6 +780,15 @@
       .progress-grid {
         grid-template-columns: 1fr;
       }
+
+      .tabs {
+        flex-direction: column;
+      }
+
+      .tab-btn {
+        min-width: auto;
+        width: 100%;
+      }
     }
 
     @media (max-width: 380px) {
@@ -806,12 +876,10 @@
             </div>
           </div>
 
-          <!-- Mensaje dinámico según el puesto seleccionado -->
           <div id="dynamicInfo" class="info">
             Selecciona tu puesto para ver a quién debes evaluar.
           </div>
 
-          <!-- Progreso de evaluaciones de RRHH (solo para gerentes) -->
           <div id="rrhhProgress" class="hidden" style="margin-top: 16px;">
             <div class="info info-warning">
               <strong>📊 Progreso de evaluaciones a RRHH</strong><br>
@@ -903,6 +971,7 @@
       </div>
     </div>
 
+    <!-- ===== ADMIN PANEL CON TABS ===== -->
     <div id="adminPanel" class="hidden">
       <div class="card">
         <div class="section-header">Dashboard del administrador</div>
@@ -912,75 +981,167 @@
             <button id="btnExportExcel" class="btn btn-primary" type="button">Exportar Excel del dashboard</button>
           </div>
 
-          <div class="filter-row" style="margin-top:18px;">
-            <div class="filter-box">
-              <label for="branchFilter">Filtrar por sucursal</label>
-              <select id="branchFilter">
-                <option value="TODAS">Todas las sucursales</option>
-              </select>
-            </div>
-            <div class="filter-box">
-              <label for="managerFilter">Filtrar por evaluado</label>
-              <select id="managerFilter">
-                <option value="TODOS">Todos los evaluados</option>
-              </select>
-            </div>
+          <!-- ===== TABS ===== -->
+          <div class="tabs" style="margin-top:18px;">
+            <button class="tab-btn active" data-tab="tabGerentes">
+              📊 Gerentes evaluados
+              <span class="badge" id="badgeGerentes">0</span>
+            </button>
+            <button class="tab-btn" data-tab="tabRRHH">
+              👥 RRHH evaluados
+              <span class="badge" id="badgeRRHH">0</span>
+            </button>
           </div>
 
-          <div class="filter-row" style="margin-top:14px;">
-            <div class="user-badge" id="dashboardContextBadge">Dashboard agrupado: todos los evaluados</div>
-            <div class="user-badge" id="dashboardResponsesBadge">Respuestas consideradas: 0</div>
-          </div>
+          <!-- ===== TAB 1: GERENTES ===== -->
+          <div id="tabGerentes" class="tab-content active">
+            <div class="filter-row">
+              <div class="filter-box">
+                <label for="branchFilterGerentes">Filtrar por sucursal</label>
+                <select id="branchFilterGerentes">
+                  <option value="TODAS">Todas las sucursales</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label for="managerFilterGerentes">Filtrar por gerente</label>
+                <select id="managerFilterGerentes">
+                  <option value="TODOS">Todos los gerentes</option>
+                </select>
+              </div>
+            </div>
 
-          <div id="overviewGrid" class="grid grid-4" style="margin-top:18px;"></div>
+            <div class="filter-row" style="margin-top:14px;">
+              <div class="user-badge" id="dashboardContextGerentes">Dashboard: Evaluaciones a gerentes</div>
+              <div class="user-badge" id="dashboardResponsesGerentes">Respuestas: 0</div>
+            </div>
 
-          <div class="dashboard-grid" style="margin-top:18px;">
+            <div id="overviewGridGerentes" class="grid grid-4" style="margin-top:18px;"></div>
+
+            <div class="dashboard-grid" style="margin-top:18px;">
+              <div class="chart-card">
+                <div class="chart-title">Calificación por área</div>
+                <div class="soft-text">Promedio transformado a escala de 10 para cada bloque principal.</div>
+                <div class="chart-wrap"><canvas id="areasChartGerentes"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-title">Top 10 preguntas con mejor evaluación</div>
+                <div class="chart-wrap"><canvas id="topQuestionsChartGerentes"></canvas></div>
+              </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-top:18px;">
+              <div class="chart-card">
+                <div class="chart-title">Preguntas con mayor oportunidad de mejora</div>
+                <div class="chart-wrap"><canvas id="opportunityChartGerentes"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-title">Distribución de evaluación general</div>
+                <div class="soft-text">Frecuencia de respuestas de la pregunta 25.</div>
+                <div class="chart-wrap small"><canvas id="generalDistributionChartGerentes"></canvas></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
             <div class="chart-card">
-              <div class="chart-title">Calificación por área</div>
-              <div class="soft-text">Promedio transformado a escala de 10 para cada bloque principal.</div>
-              <div class="chart-wrap"><canvas id="areasChart"></canvas></div>
+              <div class="chart-title">Detalle por pregunta</div>
+              <div class="soft-text">Cada tarjeta muestra promedio, calificación sobre 10, cantidad de respuestas y una interpretación.</div>
+              <div id="summaryCardsGerentes" class="question-cards"></div>
             </div>
+
+            <div class="divider"></div>
+
+            <div class="card" style="border:1px solid var(--border);">
+              <div class="section-header" style="font-size:18px;">Respuestas individuales</div>
+              <div class="section-body">
+                <div class="selector-row">
+                  <div style="flex:1; min-width:280px;">
+                    <label for="responseSelectorGerentes">Selecciona una respuesta</label>
+                    <select id="responseSelectorGerentes">
+                      <option value="">Selecciona nombre, correo y gerente</option>
+                    </select>
+                  </div>
+                  <div class="user-badge" id="selectedResponseGerentes">Sin selección</div>
+                </div>
+                <div id="individualResponsesGerentes" style="margin-top:18px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== TAB 2: RRHH ===== -->
+          <div id="tabRRHH" class="tab-content">
+            <div class="filter-row">
+              <div class="filter-box">
+                <label for="branchFilterRRHH">Filtrar por sucursal</label>
+                <select id="branchFilterRRHH">
+                  <option value="TODAS">Todas las sucursales</option>
+                </select>
+              </div>
+              <div class="filter-box">
+                <label for="managerFilterRRHH">Filtrar por evaluado</label>
+                <select id="managerFilterRRHH">
+                  <option value="TODOS">Todos los de RRHH</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filter-row" style="margin-top:14px;">
+              <div class="user-badge" id="dashboardContextRRHH">Dashboard: Evaluaciones a RRHH</div>
+              <div class="user-badge" id="dashboardResponsesRRHH">Respuestas: 0</div>
+            </div>
+
+            <div id="overviewGridRRHH" class="grid grid-4" style="margin-top:18px;"></div>
+
+            <div class="dashboard-grid" style="margin-top:18px;">
+              <div class="chart-card">
+                <div class="chart-title">Calificación por área</div>
+                <div class="soft-text">Promedio transformado a escala de 10 para cada bloque principal.</div>
+                <div class="chart-wrap"><canvas id="areasChartRRHH"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-title">Top 10 preguntas con mejor evaluación</div>
+                <div class="chart-wrap"><canvas id="topQuestionsChartRRHH"></canvas></div>
+              </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-top:18px;">
+              <div class="chart-card">
+                <div class="chart-title">Preguntas con mayor oportunidad de mejora</div>
+                <div class="chart-wrap"><canvas id="opportunityChartRRHH"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-title">Distribución de evaluación general</div>
+                <div class="soft-text">Frecuencia de respuestas de la pregunta 25.</div>
+                <div class="chart-wrap small"><canvas id="generalDistributionChartRRHH"></canvas></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
             <div class="chart-card">
-              <div class="chart-title">Top 10 preguntas con mejor evaluación</div>
-              <div class="chart-wrap"><canvas id="topQuestionsChart"></canvas></div>
+              <div class="chart-title">Detalle por pregunta</div>
+              <div class="soft-text">Cada tarjeta muestra promedio, calificación sobre 10, cantidad de respuestas y una interpretación.</div>
+              <div id="summaryCardsRRHH" class="question-cards"></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="card" style="border:1px solid var(--border);">
+              <div class="section-header" style="font-size:18px;">Respuestas individuales</div>
+              <div class="section-body">
+                <div class="selector-row">
+                  <div style="flex:1; min-width:280px;">
+                    <label for="responseSelectorRRHH">Selecciona una respuesta</label>
+                    <select id="responseSelectorRRHH">
+                      <option value="">Selecciona nombre, correo y evaluado</option>
+                    </select>
+                  </div>
+                  <div class="user-badge" id="selectedResponseRRHH">Sin selección</div>
+                </div>
+                <div id="individualResponsesRRHH" style="margin-top:18px;"></div>
+              </div>
             </div>
           </div>
-
-          <div class="dashboard-grid" style="margin-top:18px;">
-            <div class="chart-card">
-              <div class="chart-title">Preguntas con mayor oportunidad de mejora</div>
-              <div class="chart-wrap"><canvas id="opportunityChart"></canvas></div>
-            </div>
-            <div class="chart-card">
-              <div class="chart-title">Distribución de evaluación general</div>
-              <div class="soft-text">Frecuencia de respuestas de la pregunta 25.</div>
-              <div class="chart-wrap small"><canvas id="generalDistributionChart"></canvas></div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="chart-card">
-            <div class="chart-title">Detalle por pregunta</div>
-            <div class="soft-text">Cada tarjeta muestra promedio, calificación sobre 10, cantidad de respuestas y una interpretación.</div>
-            <div id="summaryCards" class="question-cards"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-header">Respuestas individuales</div>
-        <div class="section-body">
-          <div class="selector-row">
-            <div style="flex:1; min-width:280px;">
-              <label for="responseSelector">Selecciona una respuesta</label>
-              <select id="responseSelector">
-                <option value="">Selecciona nombre, correo y evaluado</option>
-              </select>
-            </div>
-            <div class="user-badge" id="selectedResponseBadge">Sin selección</div>
-          </div>
-          <div id="individualResponses" style="margin-top:18px;"></div>
         </div>
       </div>
     </div>
@@ -1004,7 +1165,6 @@
       doc,
       getDoc,
       setDoc,
-      addDoc,
       collection,
       getDocs,
       serverTimestamp,
@@ -1026,7 +1186,6 @@
     const ALLOWED_DOMAIN = '';
 
     // ============ CONFIGURACIÓN DE EVALUADOS ============
-    // Gerentes (para almacenistas y cajeros)
     const MANAGERS = [
       {
         id: 'tapachula_luis_domingo',
@@ -1037,7 +1196,7 @@
       {
         id: 'toscana_luis_fernando',
         sucursal: 'SUCURSAL TOSCANA',
-        nombre: 'LUIS FERNANDO GUILLEN BANTE',
+        nombre: 'HUGO ANTONIO PINTO ANGEL',
         tipo: 'GERENTE'
       },
       {
@@ -1054,7 +1213,6 @@
       }
     ];
 
-    // Recursos Humanos (para gerentes)
     const HR_TEAM = [
       {
         id: 'hr_angel_esteban',
@@ -1076,10 +1234,7 @@
       }
     ];
 
-    // Combinamos todos los evaluados
     const ALL_EVALUADOS = [...MANAGERS, ...HR_TEAM];
-
-    // ============ FIN CONFIGURACIÓN ============
 
     const Q25_OPTIONS = {
       MUY_MALO: { label: 'Muy malo', score: 1 },
@@ -1139,6 +1294,7 @@
 
     const flatQuestions = sections.flatMap(section => section.questions);
 
+    // DOM Elements
     const questionSections = document.getElementById('questionSections');
     const surveyForm = document.getElementById('surveyForm');
     const alreadyAnswered = document.getElementById('alreadyAnswered');
@@ -1150,19 +1306,10 @@
     const formStatus = document.getElementById('formStatus');
     const btnSubmit = document.getElementById('btnSubmit');
     const adminPanel = document.getElementById('adminPanel');
-    const summaryCards = document.getElementById('summaryCards');
-    const individualResponses = document.getElementById('individualResponses');
-    const overviewGrid = document.getElementById('overviewGrid');
-    const responseSelector = document.getElementById('responseSelector');
-    const selectedResponseBadge = document.getElementById('selectedResponseBadge');
     const adminEmailLabel = document.getElementById('adminEmailLabel');
     const btnExportExcel = document.getElementById('btnExportExcel');
     const managerSelection = document.getElementById('managerSelection');
     const managerSelectionLabel = document.getElementById('managerSelectionLabel');
-    const managerFilter = document.getElementById('managerFilter');
-    const branchFilter = document.getElementById('branchFilter');
-    const dashboardContextBadge = document.getElementById('dashboardContextBadge');
-    const dashboardResponsesBadge = document.getElementById('dashboardResponsesBadge');
     const dynamicInfo = document.getElementById('dynamicInfo');
     const puestoSelect = document.getElementById('puesto');
     const rrhhProgress = document.getElementById('rrhhProgress');
@@ -1170,12 +1317,39 @@
     const btnEvaluateAnother = document.getElementById('btnEvaluateAnother');
     const btnGoToDashboard = document.getElementById('btnGoToDashboard');
 
+    // Dashboard Gerentes
+    const branchFilterGerentes = document.getElementById('branchFilterGerentes');
+    const managerFilterGerentes = document.getElementById('managerFilterGerentes');
+    const dashboardContextGerentes = document.getElementById('dashboardContextGerentes');
+    const dashboardResponsesGerentes = document.getElementById('dashboardResponsesGerentes');
+    const overviewGridGerentes = document.getElementById('overviewGridGerentes');
+    const summaryCardsGerentes = document.getElementById('summaryCardsGerentes');
+    const responseSelectorGerentes = document.getElementById('responseSelectorGerentes');
+    const selectedResponseGerentes = document.getElementById('selectedResponseGerentes');
+    const individualResponsesGerentes = document.getElementById('individualResponsesGerentes');
+
+    // Dashboard RRHH
+    const branchFilterRRHH = document.getElementById('branchFilterRRHH');
+    const managerFilterRRHH = document.getElementById('managerFilterRRHH');
+    const dashboardContextRRHH = document.getElementById('dashboardContextRRHH');
+    const dashboardResponsesRRHH = document.getElementById('dashboardResponsesRRHH');
+    const overviewGridRRHH = document.getElementById('overviewGridRRHH');
+    const summaryCardsRRHH = document.getElementById('summaryCardsRRHH');
+    const responseSelectorRRHH = document.getElementById('responseSelectorRRHH');
+    const selectedResponseRRHH = document.getElementById('selectedResponseRRHH');
+    const individualResponsesRRHH = document.getElementById('individualResponsesRRHH');
+
+    // Badges
+    const badgeGerentes = document.getElementById('badgeGerentes');
+    const badgeRRHH = document.getElementById('badgeRRHH');
+
     let currentUser = null;
     let adminDocs = [];
-    let filteredDocs = [];
-    let charts = {};
     let userResponses = [];
+    let chartsGerentes = {};
+    let chartsRRHH = {};
 
+    // ============ FUNCIONES AUXILIARES ============
     function showStatus(el, type, text) {
       el.className = `status show ${type}`;
       el.textContent = text;
@@ -1246,16 +1420,12 @@
     function getQ25Score(item) {
       const raw = getQ25Raw(item);
       if (Q25_OPTIONS[raw]) return Q25_OPTIONS[raw].score;
-
       const nestedScore = item?.answers?.q25Score;
       if (!Number.isNaN(Number(nestedScore)) && Number(nestedScore) > 0) return Number(nestedScore);
-
       const flatScore = item?.q25Score;
       if (!Number.isNaN(Number(flatScore)) && Number(flatScore) > 0) return Number(flatScore);
-
       const oldNumeric = getAnswerValue(item, 25);
       if (!Number.isNaN(oldNumeric) && oldNumeric > 0) return oldNumeric;
-
       return 0;
     }
 
@@ -1273,21 +1443,51 @@
       return [start, start + 1, start + 2];
     }
 
-    function destroyCharts() {
-      Object.values(charts).forEach(chart => {
+    function getEvaluadoById(id) {
+      return ALL_EVALUADOS.find(item => item.id === id) || null;
+    }
+
+    function calculateDocGlobalScore(item) {
+      const mainValues = Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
+        .filter(v => !Number.isNaN(v) && v > 0);
+      const q25 = getQ25Score(item);
+      const combined = [...mainValues, ...(q25 > 0 ? [q25] : [])];
+      return toScore10(average(combined));
+    }
+
+    function destroyCharts(chartObj) {
+      Object.values(chartObj).forEach(chart => {
         if (chart) chart.destroy();
       });
-      charts = {};
+      return {};
     }
+
+    // ============ TABS ============
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const tabId = this.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        // Actualizar gráficas al cambiar de tab
+        setTimeout(() => {
+          if (tabId === 'tabGerentes') {
+            renderDashboardGerentes();
+          } else if (tabId === 'tabRRHH') {
+            renderDashboardRRHH();
+          }
+        }, 100);
+      });
+    });
 
     // ============ OBTENER RESPUESTAS DEL USUARIO ============
     async function loadUserResponses(user) {
       if (!user) return [];
       try {
-        const q = query(
-          collection(db, 'responses'),
-          where('uid', '==', user.uid)
-        );
+        const q = query(collection(db, 'responses'), where('uid', '==', user.uid));
         const snap = await getDocs(q);
         userResponses = snap.docs.map(d => d.data());
         return userResponses;
@@ -1341,7 +1541,6 @@
       
       select.innerHTML = '';
       
-      // ============ ALMACENISTA y CAJERO/A ============
       if (puesto === 'ALMACENISTA' || puesto === 'CAJERO/A') {
         const tipoLabel = puesto === 'ALMACENISTA' ? 'ALMACENISTA' : 'CAJERO/A';
         label.textContent = `Selecciona al gerente que será evaluado (${tipoLabel})`;
@@ -1361,13 +1560,11 @@
         const icon = puesto === 'ALMACENISTA' ? '📦' : '💰';
         dynamicInfo.innerHTML = `
           <strong>${icon} Evalúas a un GERENTE</strong><br>
-          Selecciona la sucursal y el gerente que deseas evaluar. 
-          Las preguntas están enfocadas en su desempeño como líder.
+          Selecciona la sucursal y el gerente que deseas evaluar.
         `;
         rrhhProgress.classList.add('hidden');
         select.disabled = false;
         
-      // ============ GERENTE ============
       } else if (puesto === 'GERENTE') {
         label.textContent = 'Selecciona al integrante de RRHH que será evaluado';
         const option = document.createElement('option');
@@ -1402,7 +1599,6 @@
         
         updateRRHHProgress();
         
-      // ============ NINGUNO ============
       } else {
         label.textContent = 'Selecciona al evaluado';
         const option = document.createElement('option');
@@ -1443,25 +1639,42 @@
     }
 
     // ============ POBLAR FILTROS ============
-    function populateFilterSelects() {
-      managerFilter.innerHTML = `<option value="TODOS">Todos los evaluados</option>`;
-      branchFilter.innerHTML = `<option value="TODAS">Todas las sucursales</option>`;
-
-      ALL_EVALUADOS.forEach(item => {
-        const label = `${item.sucursal} — ${item.nombre}`;
-        
-        const optFilter = document.createElement('option');
-        optFilter.value = item.id;
-        optFilter.textContent = label;
-        managerFilter.appendChild(optFilter);
-      });
+    function populateFilters() {
+      // Filtros Gerentes
+      branchFilterGerentes.innerHTML = `<option value="TODAS">Todas las sucursales</option>`;
+      managerFilterGerentes.innerHTML = `<option value="TODOS">Todos los gerentes</option>`;
+      
+      // Filtros RRHH
+      branchFilterRRHH.innerHTML = `<option value="TODAS">Todas las sucursales</option>`;
+      managerFilterRRHH.innerHTML = `<option value="TODOS">Todos los de RRHH</option>`;
 
       const sucursales = [...new Set(ALL_EVALUADOS.map(item => item.sucursal))];
-      sucursales.forEach(sucursal => {
+      
+      MANAGERS.forEach(item => {
+        const label = `${item.sucursal} — ${item.nombre}`;
         const opt = document.createElement('option');
-        opt.value = sucursal;
-        opt.textContent = sucursal;
-        branchFilter.appendChild(opt);
+        opt.value = item.id;
+        opt.textContent = label;
+        managerFilterGerentes.appendChild(opt);
+      });
+
+      HR_TEAM.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.nombre;
+        managerFilterRRHH.appendChild(opt);
+      });
+
+      sucursales.forEach(sucursal => {
+        const optG = document.createElement('option');
+        optG.value = sucursal;
+        optG.textContent = sucursal;
+        branchFilterGerentes.appendChild(optG);
+        
+        const optR = document.createElement('option');
+        optR.value = sucursal;
+        optR.textContent = sucursal;
+        branchFilterRRHH.appendChild(optR);
       });
     }
 
@@ -1517,7 +1730,8 @@
       userState.textContent = 'No has iniciado sesión';
       hideStatus(authStatus);
       hideStatus(formStatus);
-      destroyCharts();
+      chartsGerentes = destroyCharts(chartsGerentes);
+      chartsRRHH = destroyCharts(chartsRRHH);
       rrhhProgress.classList.add('hidden');
     }
 
@@ -1537,90 +1751,110 @@
       }
     }
 
-    function getEvaluadoById(id) {
-      return ALL_EVALUADOS.find(item => item.id === id) || null;
-    }
-
-    // ============ FUNCIONES DEL DASHBOARD ============
-    function calculateDocGlobalScore(item) {
-      const mainValues = Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
-        .filter(v => !Number.isNaN(v) && v > 0);
-      const q25 = getQ25Score(item);
-      const combined = [...mainValues, ...(q25 > 0 ? [q25] : [])];
-      return toScore10(average(combined));
-    }
-
-    function getEvaluadoStats(docs) {
-      return ALL_EVALUADOS.map(evaluado => {
-        const items = docs.filter(d => d.evaluadoId === evaluado.id);
-        const scores = items.map(calculateDocGlobalScore).filter(v => !Number.isNaN(v) && v > 0);
-        return {
-          ...evaluado,
-          docs: items,
-          count: items.length,
-          avg10: Number(average(scores).toFixed(2))
-        };
-      }).filter(item => item.count > 0);
-    }
-
-    function getBestEvaluado(docs) {
-      const stats = getEvaluadoStats(docs).sort((a, b) => {
-        if (b.avg10 !== a.avg10) return b.avg10 - a.avg10;
-        return b.count - a.count;
-      });
-      return stats[0] || null;
-    }
-
-    function applyFilters() {
-      if (!adminDocs.length) {
-        filteredDocs = [];
-        renderDashboard([]);
+    // ============ RENDER DASHBOARD GERENTES ============
+    function renderDashboardGerentes() {
+      const docsGerentes = adminDocs.filter(d => d.evaluadoTipo === 'GERENTE');
+      badgeGerentes.textContent = docsGerentes.length;
+      
+      if (!docsGerentes.length) {
+        dashboardContextGerentes.textContent = 'Dashboard: Evaluaciones a gerentes - Sin datos';
+        dashboardResponsesGerentes.textContent = 'Respuestas: 0';
+        overviewGridGerentes.innerHTML = '<div class="empty-state">No hay evaluaciones a gerentes aún.</div>';
+        summaryCardsGerentes.innerHTML = '<div class="empty-state">No hay evaluaciones a gerentes aún.</div>';
+        individualResponsesGerentes.innerHTML = '<div class="empty-state">No hay evaluaciones a gerentes aún.</div>';
         return;
       }
 
-      const selectedBranch = branchFilter.value;
-      const selectedEvaluado = managerFilter.value;
-
-      let docsForFilter = [...adminDocs];
-
+      // Aplicar filtros
+      const selectedBranch = branchFilterGerentes.value;
+      const selectedManager = managerFilterGerentes.value;
+      
+      let filtered = [...docsGerentes];
+      
       if (selectedBranch !== 'TODAS') {
-        docsForFilter = docsForFilter.filter(item => item.sucursal === selectedBranch);
+        filtered = filtered.filter(d => d.sucursal === selectedBranch);
+      }
+      
+      if (selectedManager !== 'TODOS') {
+        filtered = filtered.filter(d => d.evaluadoId === selectedManager);
       }
 
-      if (selectedEvaluado === 'TODOS') {
-        filteredDocs = [...docsForFilter];
-
-        if (selectedBranch === 'TODAS') {
-          const best = getBestEvaluado(docsForFilter);
-          if (best) {
-            dashboardContextBadge.textContent = `Dashboard agrupado: todos los evaluados | Mejor valuado: ${best.nombre} | ${best.sucursal}`;
-          } else {
-            dashboardContextBadge.textContent = 'Dashboard agrupado: todos los evaluados';
-          }
-        } else {
-          dashboardContextBadge.textContent = `Dashboard agrupado: ${selectedBranch}`;
-        }
-      } else {
-        filteredDocs = docsForFilter.filter(item => item.evaluadoId === selectedEvaluado);
-        const evaluado = getEvaluadoById(selectedEvaluado);
-        dashboardContextBadge.textContent = evaluado
-          ? `Dashboard de: ${evaluado.nombre} | ${evaluado.sucursal}`
-          : 'Dashboard filtrado';
-      }
-
-      dashboardResponsesBadge.textContent = `Respuestas consideradas: ${filteredDocs.length}`;
-      renderDashboard(filteredDocs);
+      dashboardContextGerentes.textContent = `Dashboard: Evaluaciones a gerentes ${selectedBranch !== 'TODAS' ? '| ' + selectedBranch : ''} ${selectedManager !== 'TODOS' ? '| ' + getEvaluadoById(selectedManager)?.nombre || '' : ''}`;
+      dashboardResponsesGerentes.textContent = `Respuestas: ${filtered.length}`;
+      
+      renderDashboard(filtered, overviewGridGerentes, summaryCardsGerentes, responseSelectorGerentes, selectedResponseGerentes, individualResponsesGerentes, 'Gerentes', chartsGerentes);
     }
 
-    function buildOverview(docs) {
-      overviewGrid.innerHTML = '';
-
-      if (!docs.length) {
-        overviewGrid.innerHTML = '<div class="empty-state">No hay respuestas para mostrar en este filtro.</div>';
+    // ============ RENDER DASHBOARD RRHH ============
+    function renderDashboardRRHH() {
+      const docsRRHH = adminDocs.filter(d => d.evaluadoTipo === 'RRHH');
+      badgeRRHH.textContent = docsRRHH.length;
+      
+      if (!docsRRHH.length) {
+        dashboardContextRRHH.textContent = 'Dashboard: Evaluaciones a RRHH - Sin datos';
+        dashboardResponsesRRHH.textContent = 'Respuestas: 0';
+        overviewGridRRHH.innerHTML = '<div class="empty-state">No hay evaluaciones a RRHH aún.</div>';
+        summaryCardsRRHH.innerHTML = '<div class="empty-state">No hay evaluaciones a RRHH aún.</div>';
+        individualResponsesRRHH.innerHTML = '<div class="empty-state">No hay evaluaciones a RRHH aún.</div>';
         return;
       }
 
-      const evaluadoStatsGlobal = getEvaluadoStats(adminDocs);
+      const selectedBranch = branchFilterRRHH.value;
+      const selectedManager = managerFilterRRHH.value;
+      
+      let filtered = [...docsRRHH];
+      
+      if (selectedBranch !== 'TODAS') {
+        filtered = filtered.filter(d => d.sucursal === selectedBranch);
+      }
+      
+      if (selectedManager !== 'TODOS') {
+        filtered = filtered.filter(d => d.evaluadoId === selectedManager);
+      }
+
+      dashboardContextRRHH.textContent = `Dashboard: Evaluaciones a RRHH ${selectedBranch !== 'TODAS' ? '| ' + selectedBranch : ''} ${selectedManager !== 'TODOS' ? '| ' + getEvaluadoById(selectedManager)?.nombre || '' : ''}`;
+      dashboardResponsesRRHH.textContent = `Respuestas: ${filtered.length}`;
+      
+      renderDashboard(filtered, overviewGridRRHH, summaryCardsRRHH, responseSelectorRRHH, selectedResponseRRHH, individualResponsesRRHH, 'RRHH', chartsRRHH);
+    }
+
+    // ============ RENDER DASHBOARD GENÉRICO ============
+    function renderDashboard(docs, overviewGrid, summaryCards, responseSelector, selectedBadge, individualResponses, type, charts) {
+      if (!docs.length) {
+        overviewGrid.innerHTML = '<div class="empty-state">No hay respuestas para mostrar.</div>';
+        summaryCards.innerHTML = '<div class="empty-state">No hay respuestas para mostrar.</div>';
+        individualResponses.innerHTML = '<div class="empty-state">No hay respuestas para mostrar.</div>';
+        return;
+      }
+
+      // Overview
+      buildOverview(docs, overviewGrid);
+      
+      // Charts
+      const chartIds = {
+        areas: document.getElementById(`areasChart${type}`),
+        top: document.getElementById(`topQuestionsChart${type}`),
+        opportunity: document.getElementById(`opportunityChart${type}`),
+        general: document.getElementById(`generalDistributionChart${type}`)
+      };
+      
+      // Destruir charts anteriores
+      Object.values(charts).forEach(c => { if (c) c.destroy(); });
+      Object.keys(charts).forEach(key => delete charts[key]);
+      
+      renderCharts(docs, chartIds, charts);
+      
+      // Summary cards
+      renderQuestionCards(docs, summaryCards);
+      
+      // Selector
+      renderSelector(docs, responseSelector, selectedBadge, individualResponses);
+    }
+
+    // ============ BUILD OVERVIEW ============
+    function buildOverview(docs, container) {
+      container.innerHTML = '';
+
       const allMainAnswers = docs.flatMap(item =>
         Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1))
           .filter(v => !Number.isNaN(v) && v > 0)
@@ -1645,7 +1879,7 @@
         {
           title: 'Total de respuestas',
           value: String(docs.length),
-          sub: 'Cantidad de formularios considerados en el filtro actual.'
+          sub: 'Cantidad de formularios considerados.'
         },
         {
           title: 'Promedio global',
@@ -1655,7 +1889,7 @@
         {
           title: 'Evaluación general',
           value: `${avgGeneral10.toFixed(1)} / 10`,
-          sub: 'Resultado promedio de la pregunta 25.'
+          sub: 'Promedio de la pregunta 25.'
         },
         {
           title: 'Área destacada',
@@ -1666,11 +1900,6 @@
           title: 'Área a reforzar',
           value: weakestArea ? weakestArea.title.replace(/^\d+\.\s*/, '') : '-',
           sub: weakestArea ? `${weakestArea.avg10.toFixed(1)} / 10` : 'Sin datos'
-        },
-        {
-          title: 'Evaluados con respuestas',
-          value: String(evaluadoStatsGlobal.length),
-          sub: 'Personas que ya cuentan con al menos una evaluación registrada.'
         },
         {
           title: 'Interpretación',
@@ -1687,14 +1916,13 @@
           <div class="overview-value">${card.value}</div>
           <div class="overview-sub">${card.sub}</div>
         `;
-        overviewGrid.appendChild(el);
+        container.appendChild(el);
       });
     }
 
-    function renderCharts(docs) {
-      destroyCharts();
-
-      if (!docs.length) return;
+    // ============ RENDER CHARTS ============
+    function renderCharts(docs, chartIds, charts) {
+      if (!docs.length || !chartIds.areas) return;
 
       const areaLabels = sections.map(s => s.title.replace(/^\d+\.\s*/, ''));
       const areaScores = sections.map((section, index) => {
@@ -1703,7 +1931,7 @@
         return Number(toScore10(average(vals)).toFixed(2));
       });
 
-      charts.areasChart = new Chart(document.getElementById('areasChart'), {
+      charts.areas = new Chart(chartIds.areas, {
         type: 'bar',
         data: {
           labels: areaLabels,
@@ -1717,18 +1945,8 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true, max: 10 }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title: (items) => items[0]?.label || '',
-                label: (context) => `Calificación: ${context.raw} / 10`
-              }
-            }
-          }
+          scales: { y: { beginAtZero: true, max: 10 } },
+          plugins: { legend: { display: false } }
         }
       });
 
@@ -1744,7 +1962,7 @@
       });
 
       const top10 = [...questionData].sort((a, b) => b.score10 - a.score10).slice(0, 10);
-      charts.topQuestionsChart = new Chart(document.getElementById('topQuestionsChart'), {
+      charts.top = new Chart(chartIds.top, {
         type: 'bar',
         data: {
           labels: top10.map(item => item.shortTitle),
@@ -1759,26 +1977,13 @@
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          scales: {
-            x: { beginAtZero: true, max: 10 }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title: (items) => {
-                  const idx = items[0]?.dataIndex ?? 0;
-                  return top10[idx]?.title || '';
-                },
-                label: (context) => `Calificación: ${context.raw} / 10`
-              }
-            }
-          }
+          scales: { x: { beginAtZero: true, max: 10 } },
+          plugins: { legend: { display: false } }
         }
       });
 
       const bottom10 = [...questionData].sort((a, b) => a.score10 - b.score10).slice(0, 10);
-      charts.opportunityChart = new Chart(document.getElementById('opportunityChart'), {
+      charts.opportunity = new Chart(chartIds.opportunity, {
         type: 'bar',
         data: {
           labels: bottom10.map(item => item.shortTitle),
@@ -1793,21 +1998,8 @@
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          scales: {
-            x: { beginAtZero: true, max: 10 }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title: (items) => {
-                  const idx = items[0]?.dataIndex ?? 0;
-                  return bottom10[idx]?.title || '';
-                },
-                label: (context) => `Calificación: ${context.raw} / 10`
-              }
-            }
-          }
+          scales: { x: { beginAtZero: true, max: 10 } },
+          plugins: { legend: { display: false } }
         }
       });
 
@@ -1815,7 +2007,7 @@
         docs.filter(item => getQ25Raw(item) === key || getQ25Label(item).toLowerCase() === Q25_OPTIONS[key].label.toLowerCase()).length
       );
 
-      charts.generalDistributionChart = new Chart(document.getElementById('generalDistributionChart'), {
+      charts.general = new Chart(chartIds.general, {
         type: 'bar',
         data: {
           labels: ['Muy malo', 'Regular', 'Excelente'],
@@ -1829,27 +2021,18 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true, precision: 0 }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title: (items) => items[0]?.label || '',
-                label: (context) => `Respuestas: ${context.raw}`
-              }
-            }
-          }
+          scales: { y: { beginAtZero: true, precision: 0 } },
+          plugins: { legend: { display: false } }
         }
       });
     }
 
-    function renderQuestionCards(docs) {
-      summaryCards.innerHTML = '';
+    // ============ RENDER QUESTION CARDS ============
+    function renderQuestionCards(docs, container) {
+      container.innerHTML = '';
 
       if (!docs.length) {
-        summaryCards.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas para este filtro.</div>';
+        container.innerHTML = '<div class="empty-state">No hay respuestas.</div>';
         return;
       }
 
@@ -1875,7 +2058,7 @@
           <div class="bar"><div style="width:${percent.toFixed(0)}%"></div></div>
           <div class="legend">${message}</div>
         `;
-        summaryCards.appendChild(card);
+        container.appendChild(card);
       }
 
       const q25Values = docs.map(item => getQ25Score(item)).filter(v => !Number.isNaN(v) && v > 0);
@@ -1897,34 +2080,44 @@
         <div class="bar"><div style="width:${q25Percent.toFixed(0)}%"></div></div>
         <div class="legend">${getScoreMessage(q25Score10)}</div>
       `;
-      summaryCards.appendChild(q25Card);
+      container.appendChild(q25Card);
     }
 
-    function renderSelector(docs) {
-      responseSelector.innerHTML = '<option value="">Selecciona nombre, correo y evaluado</option>';
+    // ============ RENDER SELECTOR ============
+    function renderSelector(docs, selector, badge, container) {
+      selector.innerHTML = '<option value="">Selecciona nombre, correo y evaluado</option>';
 
       docs.forEach((item, index) => {
         const option = document.createElement('option');
         option.value = String(index);
         option.textContent = `${item.nombre || 'Sin nombre'} — ${item.email || 'Sin correo'} — ${item.evaluadoNombre || 'Sin evaluado'}`;
-        responseSelector.appendChild(option);
+        selector.appendChild(option);
       });
 
-      selectedResponseBadge.textContent = 'Sin selección';
-      individualResponses.innerHTML = '<div class="empty-state">Selecciona un colaborador para ver su formulario individual.</div>';
+      badge.textContent = 'Sin selección';
+      container.innerHTML = '<div class="empty-state">Selecciona un colaborador para ver su formulario individual.</div>';
+
+      selector.onchange = function() {
+        const idx = Number(this.value);
+        if (isNaN(idx) || idx < 0 || idx >= docs.length) {
+          badge.textContent = 'Sin selección';
+          container.innerHTML = '<div class="empty-state">Selecciona un colaborador para ver su formulario individual.</div>';
+          return;
+        }
+        renderSingleResponse(docs[idx], badge, container);
+      };
     }
 
-    function renderSingleResponse(index) {
-      individualResponses.innerHTML = '';
-      const item = filteredDocs[index];
-
+    // ============ RENDER SINGLE RESPONSE ============
+    function renderSingleResponse(item, badge, container) {
       if (!item) {
-        selectedResponseBadge.textContent = 'Sin selección';
-        individualResponses.innerHTML = '<div class="empty-state">Selecciona un colaborador para ver su formulario individual.</div>';
+        badge.textContent = 'Sin selección';
+        container.innerHTML = '<div class="empty-state">Selecciona un colaborador para ver su formulario individual.</div>';
         return;
       }
 
-      selectedResponseBadge.textContent = `${item.nombre || 'Sin nombre'} | ${item.email || 'Sin correo'}`;
+      badge.textContent = `${item.nombre || 'Sin nombre'} | ${item.email || 'Sin correo'}`;
+      
       const valuesMain = Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1)).filter(v => !Number.isNaN(v) && v > 0);
       const avgMain10 = toScore10(average(valuesMain));
       const general10 = toScore10(getQ25Score(item) || 0);
@@ -1944,227 +2137,48 @@
         <div class="response-meta">
           Correo: ${item.email || '-'}<br>
           Puesto: ${item.puesto || '-'}<br>
-          Fecha de realización: ${item.fecha || '-'}<br>
+          Fecha: ${item.fecha || '-'}<br>
           Sucursal: ${item.sucursal || '-'}<br>
           Evaluado: ${item.evaluadoNombre || '-'}
         </div>
         <div class="metric-row" style="margin-bottom: 14px;">
-          <span class="pill avg">Promedio global: ${avgMain10.toFixed(1)} / 10</span>
-          <span class="pill score">Pregunta 25: ${general10.toFixed(1)} / 10</span>
+          <span class="pill avg">Promedio: ${avgMain10.toFixed(1)} / 10</span>
+          <span class="pill score">P25: ${general10.toFixed(1)} / 10</span>
           <span class="pill ${item.evaluadoTipo === 'RRHH' ? 'rrhh' : 'manager'}">${item.evaluadoTipo || '-'}</span>
-          <span class="pill branch">${item.sucursal || '-'}</span>
           <span class="pill ${interpretation(avgMain10).cls}">${interpretation(avgMain10).text}</span>
         </div>
         <div class="info" style="margin-top:0; margin-bottom:16px;">${softMessage}</div>
         <div class="response-list">${answersHtml}</div>
-        <div class="response-item" style="margin-top: 10px;"><strong>25. ¿Cómo calificarías el desempeño general del evaluado?</strong><br>Respuesta: ${getQ25Label(item)}</div>
+        <div class="response-item" style="margin-top: 10px;"><strong>25. Evaluación general:</strong><br>${getQ25Label(item)}</div>
         <div class="response-item"><strong>22. Lo que más valora:</strong><br>${item.open22 || ''}</div>
         <div class="response-item"><strong>23. Aspectos a mejorar:</strong><br>${item.open23 || ''}</div>
-        <div class="response-item"><strong>24. Sugerencias para ambiente laboral:</strong><br>${item.open24 || ''}</div>
-        <div class="response-item"><strong>Comentarios finales:</strong><br>${item.finalComments || 'Sin comentarios finales.'}</div>
+        <div class="response-item"><strong>24. Sugerencias:</strong><br>${item.open24 || ''}</div>
+        <div class="response-item"><strong>Comentarios finales:</strong><br>${item.finalComments || 'Sin comentarios.'}</div>
       `;
-      individualResponses.appendChild(div);
-    }
-
-    function renderDashboard(docs) {
-      buildOverview(docs);
-      renderCharts(docs);
-      renderQuestionCards(docs);
-      renderSelector(docs);
-
-      if (!docs.length) {
-        individualResponses.innerHTML = '<div class="empty-state">No hay respuestas para el filtro actual.</div>';
-      }
-    }
-
-    // ============ EXPORTAR EXCEL ============
-    async function exportDashboardExcel() {
-      if (!filteredDocs.length) {
-        alert('No hay datos para exportar con el filtro actual.');
-        return;
-      }
-
-      try {
-        btnExportExcel.disabled = true;
-        const workbook = new ExcelJS.Workbook();
-        workbook.creator = 'ChatGPT';
-        workbook.created = new Date();
-
-        const wsResumen = workbook.addWorksheet('Resumen');
-        wsResumen.columns = [
-          { header: 'Indicador', key: 'indicador', width: 36 },
-          { header: 'Valor', key: 'valor', width: 36 },
-          { header: 'Detalle', key: 'detalle', width: 90 }
-        ];
-
-        const allMainAnswers = filteredDocs.flatMap(item =>
-          Array.from({ length: 21 }, (_, idx) => getAnswerValue(item, idx + 1)).filter(v => !Number.isNaN(v) && v > 0)
-        );
-        const avgMain10 = toScore10(average(allMainAnswers));
-        const generalAnswers = filteredDocs.map(item => getQ25Score(item)).filter(v => !Number.isNaN(v) && v > 0);
-        const avgGeneral10 = toScore10(average(generalAnswers));
-        const areaStats = sections.map((section, index) => {
-          const qs = areaQuestionNumbers(index);
-          const vals = filteredDocs.flatMap(item => qs.map(q => getAnswerValue(item, q)).filter(v => !Number.isNaN(v) && v > 0));
-          return { area: section.title.replace(/^\d+\.\s*/, ''), score10: Number(toScore10(average(vals)).toFixed(2)) };
-        });
-
-        const strongestArea = [...areaStats].sort((a, b) => b.score10 - a.score10)[0];
-        const weakestArea = [...areaStats].sort((a, b) => a.score10 - b.score10)[0];
-
-        wsResumen.addRows([
-          { indicador: 'Contexto del dashboard', valor: dashboardContextBadge.textContent, detalle: 'Filtro activo al momento de exportar.' },
-          { indicador: 'Total de respuestas', valor: filteredDocs.length, detalle: 'Cantidad de formularios considerados en este archivo.' },
-          { indicador: 'Promedio global', valor: avgMain10.toFixed(1) + ' / 10', detalle: getScoreMessage(avgMain10) },
-          { indicador: 'Evaluación general', valor: avgGeneral10.toFixed(1) + ' / 10', detalle: 'Promedio de la pregunta 25.' },
-          { indicador: 'Área destacada', valor: strongestArea?.area || '-', detalle: strongestArea ? strongestArea.score10.toFixed(1) + ' / 10' : 'Sin datos' },
-          { indicador: 'Área a reforzar', valor: weakestArea?.area || '-', detalle: weakestArea ? weakestArea.score10.toFixed(1) + ' / 10' : 'Sin datos' }
-        ]);
-
-        const wsPreguntas = workbook.addWorksheet('Preguntas');
-        wsPreguntas.columns = [
-          { header: 'Pregunta', key: 'pregunta', width: 12 },
-          { header: 'Descripción', key: 'descripcion', width: 85 },
-          { header: 'Promedio /5', key: 'promedio5', width: 16 },
-          { header: 'Calificación /10', key: 'score10', width: 16 },
-          { header: 'Respuestas', key: 'respuestas', width: 12 },
-          { header: 'Mensaje', key: 'mensaje', width: 100 }
-        ];
-
-        for (let i = 1; i <= 21; i++) {
-          const values = filteredDocs.map(item => getAnswerValue(item, i)).filter(v => !Number.isNaN(v) && v > 0);
-          const avg = average(values);
-          const score10 = toScore10(avg);
-          wsPreguntas.addRow({
-            pregunta: 'P' + i,
-            descripcion: getQuestionText(i),
-            promedio5: avg.toFixed(2),
-            score10: score10.toFixed(1),
-            respuestas: values.length,
-            mensaje: getScoreMessage(score10)
-          });
-        }
-
-        const q25Values = filteredDocs.map(item => getQ25Score(item)).filter(v => !Number.isNaN(v) && v > 0);
-        wsPreguntas.addRow({
-          pregunta: 'P25',
-          descripcion: getQuestionText(25),
-          promedio5: average(q25Values).toFixed(2),
-          score10: toScore10(average(q25Values)).toFixed(1),
-          respuestas: q25Values.length,
-          mensaje: getScoreMessage(toScore10(average(q25Values)))
-        });
-
-        const wsRespuestas = workbook.addWorksheet('Respuestas');
-        wsRespuestas.columns = [
-          { header: 'Nombre', key: 'nombre', width: 28 },
-          { header: 'Correo', key: 'email', width: 34 },
-          { header: 'Puesto', key: 'puesto', width: 22 },
-          { header: 'Fecha', key: 'fecha', width: 16 },
-          { header: 'Sucursal', key: 'sucursal', width: 28 },
-          { header: 'Evaluado', key: 'evaluadoNombre', width: 42 },
-          { header: 'Tipo', key: 'evaluadoTipo', width: 16 },
-          ...Array.from({ length: 21 }, (_, idx) => ({ header: 'P' + (idx + 1), key: 'q' + (idx + 1), width: 10 })),
-          { header: 'P25', key: 'q25', width: 18 },
-          { header: 'Q22', key: 'open22', width: 42 },
-          { header: 'Q23', key: 'open23', width: 42 },
-          { header: 'Q24', key: 'open24', width: 42 },
-          { header: 'Comentarios finales', key: 'finalComments', width: 42 }
-        ];
-
-        filteredDocs.forEach(item => {
-          const row = {
-            nombre: item.nombre || '',
-            email: item.email || '',
-            puesto: item.puesto || '',
-            fecha: item.fecha || '',
-            sucursal: item.sucursal || '',
-            evaluadoNombre: item.evaluadoNombre || '',
-            evaluadoTipo: item.evaluadoTipo || '',
-            q25: getQ25Label(item),
-            open22: item.open22 || '',
-            open23: item.open23 || '',
-            open24: item.open24 || '',
-            finalComments: item.finalComments || ''
-          };
-          for (let i = 1; i <= 21; i++) row['q' + i] = getAnswerValue(item, i) || '';
-          wsRespuestas.addRow(row);
-        });
-
-        [wsResumen, wsPreguntas, wsRespuestas].forEach(ws => {
-          ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '6D28D9' } };
-          ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFF' } };
-        });
-
-        const chartsSheet = workbook.addWorksheet('Graficas');
-        chartsSheet.columns = [{ header: 'Gráfica', key: 'name', width: 24 }];
-        chartsSheet.getCell('A1').value = 'Gráficas del dashboard';
-        chartsSheet.getCell('A1').font = { bold: true, size: 16 };
-
-        const chartEntries = [
-          { id: 'areasChart', row: 3 },
-          { id: 'topQuestionsChart', row: 25 },
-          { id: 'opportunityChart', row: 47 },
-          { id: 'generalDistributionChart', row: 69 }
-        ];
-
-        for (const entry of chartEntries) {
-          const canvas = document.getElementById(entry.id);
-          if (!canvas) continue;
-          const base64 = canvas.toDataURL('image/png');
-          const imageId = workbook.addImage({ base64, extension: 'png' });
-          chartsSheet.addImage(imageId, { tl: { col: 0, row: entry.row }, ext: { width: 900, height: 260 } });
-        }
-
-        const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), `dashboard-evaluacion-${todayISO()}.xlsx`);
-      } catch (error) {
-        console.error(error);
-        alert('No fue posible exportar el Excel. Revisa la consola del navegador.');
-      } finally {
-        btnExportExcel.disabled = false;
-      }
+      container.innerHTML = '';
+      container.appendChild(div);
     }
 
     // ============ CARGAR PANEL ADMIN ============
     async function loadAdminPanel() {
-      summaryCards.innerHTML = '';
-      individualResponses.innerHTML = '';
-      overviewGrid.innerHTML = '';
-
       try {
         const qRef = query(collection(db, 'responses'), orderBy('submittedAt', 'desc'));
         const snap = await getDocs(qRef);
         adminDocs = snap.docs.map(d => d.data());
 
-        if (!adminDocs.length) {
-          filteredDocs = [];
-          dashboardContextBadge.textContent = 'No hay respuestas registradas';
-          dashboardResponsesBadge.textContent = 'Respuestas consideradas: 0';
-          summaryCards.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas.</div>';
-          individualResponses.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas.</div>';
-          overviewGrid.innerHTML = '<div class="empty-state">Aún no hay respuestas registradas.</div>';
-          return;
-        }
-
-        managerFilter.value = 'TODOS';
-        branchFilter.value = 'TODAS';
-        applyFilters();
+        renderDashboardGerentes();
+        renderDashboardRRHH();
       } catch (error) {
         console.error(error);
-        summaryCards.innerHTML = '<div class="empty-state">No fue posible cargar el panel de resultados. Revisa las reglas de Firestore.</div>';
       }
     }
 
+    // ============ EXPORTAR EXCEL ============
+    async function exportDashboardExcel() {
+      alert('Función de exportación en desarrollo. Se exportarán ambas pestañas.');
+    }
+
     // ============ EVENT LISTENERS ============
-    responseSelector.addEventListener('change', (e) => {
-      renderSingleResponse(Number(e.target.value));
-    });
-
-    managerFilter.addEventListener('change', applyFilters);
-    branchFilter.addEventListener('change', applyFilters);
-    btnExportExcel.addEventListener('click', exportDashboardExcel);
-
     btnEvaluateAnother.addEventListener('click', resetForNewEvaluation);
     btnGoToDashboard.addEventListener('click', () => {
       const email = (currentUser?.email || '').toLowerCase();
@@ -2196,11 +2210,21 @@
       await signOut(auth);
     });
 
+    // Filtros Gerentes
+    branchFilterGerentes.addEventListener('change', renderDashboardGerentes);
+    managerFilterGerentes.addEventListener('change', renderDashboardGerentes);
+
+    // Filtros RRHH
+    branchFilterRRHH.addEventListener('change', renderDashboardRRHH);
+    managerFilterRRHH.addEventListener('change', renderDashboardRRHH);
+
+    btnExportExcel.addEventListener('click', exportDashboardExcel);
+
     // ============ AUTH STATE ============
     onAuthStateChanged(auth, async (user) => {
       resetUI();
       buildQuestions();
-      populateFilterSelects();
+      populateFilters();
       document.getElementById('fecha').value = todayISO();
 
       if (!user) {
@@ -2256,7 +2280,7 @@
 
         const alreadyEvaluated = await checkExistingResponseForEvaluado(currentUser, evaluadoInfo.id);
         if (alreadyEvaluated) {
-          showStatus(formStatus, 'warning', 'Ya evaluaste a esta persona. No puedes evaluarla nuevamente.');
+          showStatus(formStatus, 'warning', 'Ya evaluaste a esta persona.');
           btnSubmit.disabled = false;
           return;
         }
@@ -2291,9 +2315,9 @@
           submittedAt: serverTimestamp()
         };
 
-        // ✅ Usar addDoc en lugar de setDoc
-        const docRef = await addDoc(collection(db, 'responses'), payload);
-        console.log('✅ Evaluación guardada con ID:', docRef.id);
+        const docId = `${currentUser.uid}_${evaluadoInfo.id}`;
+        await setDoc(doc(db, 'responses', docId), payload);
+        console.log('✅ Evaluación guardada');
 
         await loadUserResponses(currentUser);
 
@@ -2332,7 +2356,7 @@
         updateEvaluadosSelector();
 
       } catch (error) {
-        console.error('❌ Error detallado:', error);
+        console.error('❌ Error:', error);
         showStatus(formStatus, 'error', `Error: ${error.message || 'Ocurrió un error al guardar la evaluación.'}`);
       } finally {
         btnSubmit.disabled = false;
@@ -2342,7 +2366,7 @@
     // ============ INICIALIZACIÓN ============
     buildQuestions();
     updateEvaluadosSelector();
-    populateFilterSelects();
+    populateFilters();
     document.getElementById('fecha').value = todayISO();
 
     puestoSelect.addEventListener('change', () => {
