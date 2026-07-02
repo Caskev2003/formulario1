@@ -58,6 +58,7 @@ const btnFormulario = document.getElementById("btnFormulario");
 const wizardProgress = document.getElementById("wizardProgress");
 
 let perfilUsuario = null;
+let modoAdmin = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarSucursales();
@@ -67,17 +68,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   iniciarAuth({
     onLogin: async (user) => {
+      modoAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
       surveyForm.classList.remove("hidden");
 
-      if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-        prepararBotonesAdmin();
+      if (modoAdmin) {
+        activarModoAdmin();
+      } else {
+        await cargarPerfilUsuario(user);
       }
-
-      await cargarPerfilUsuario(user);
     },
 
     onLogout: () => {
       perfilUsuario = null;
+      modoAdmin = false;
 
       surveyForm.classList.add("hidden");
       adminPanel.classList.add("hidden");
@@ -88,20 +92,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
       questionSections.innerHTML = "";
       wizardProgress.innerHTML = "";
-      dashboardContent.innerHTML = "";
+
+      if (dashboardContent) dashboardContent.innerHTML = "";
 
       limpiarDatosGenerales();
+      ocultarEstado(formStatus);
     }
   });
 
-  puesto.addEventListener("change", confirmarPuestoSeleccionado);
+  puesto.addEventListener("change", manejarCambioPuesto);
+  sucursal.addEventListener("change", manejarCambioSucursal);
+
   btnAnterior.addEventListener("click", regresarPaso);
   btnSiguiente.addEventListener("click", avanzarPaso);
   btnFinalizar.addEventListener("click", finalizarEvaluacion);
 });
 
-function prepararBotonesAdmin() {
+function activarModoAdmin() {
+  perfilUsuario = null;
+
+  numeroTrabajador.disabled = false;
+  sucursal.disabled = false;
+  puesto.disabled = false;
+
   btnDashboard?.classList.remove("hidden");
+  btnFormulario?.classList.add("hidden");
+
+  prepararBotonesAdmin();
+
+  mostrarEstado(
+    formStatus,
+    "info",
+    "Modo administrador activo. Puedes seleccionar cualquier sucursal y puesto para revisar las preguntas sin restricciones."
+  );
+
+  questionSections.innerHTML = "";
+  wizardProgress.innerHTML = "";
+}
+
+function prepararBotonesAdmin() {
+  if (!btnDashboard || !btnFormulario) return;
 
   btnDashboard.onclick = async () => {
     surveyPanel.classList.add("hidden");
@@ -142,6 +172,53 @@ function cargarPuestos() {
     option.textContent = item;
     puesto.appendChild(option);
   });
+}
+
+function manejarCambioSucursal() {
+  if (modoAdmin) {
+    cargarPreguntasAdmin();
+  }
+}
+
+function manejarCambioPuesto() {
+  if (modoAdmin) {
+    cargarPreguntasAdmin();
+  } else {
+    confirmarPuestoSeleccionado();
+  }
+}
+
+function cargarPreguntasAdmin() {
+  if (!puesto.value) {
+    questionSections.innerHTML = "";
+    wizardProgress.innerHTML = "";
+    return;
+  }
+
+  if (!sucursal.value) {
+    mostrarEstado(
+      formStatus,
+      "warning",
+      "Selecciona una sucursal para visualizar correctamente las preguntas del puesto elegido."
+    );
+
+    questionSections.innerHTML = "";
+    wizardProgress.innerHTML = "";
+    return;
+  }
+
+  ocultarEstado(formStatus);
+
+  iniciarWizard(puesto.value, sucursal.value);
+  construirFormularioActual();
+  renderizarProgreso();
+  actualizarBotones();
+
+  mostrarEstado(
+    formStatus,
+    "info",
+    `Vista administrador: estás revisando el formulario de "${puesto.value}" en "${sucursal.value}".`
+  );
 }
 
 async function cargarPerfilUsuario(user) {
@@ -272,7 +349,7 @@ function validarDatosGenerales() {
     return false;
   }
 
-  if (!perfilUsuario?.puestoBloqueado) {
+  if (!modoAdmin && !perfilUsuario?.puestoBloqueado) {
     mostrarEstado(formStatus, "warning", "Primero debes confirmar tu puesto para continuar.");
     return false;
   }
@@ -364,6 +441,15 @@ function renderizarProgreso() {
 
 async function finalizarEvaluacion() {
   if (!validarDatosGenerales()) return;
+
+  if (modoAdmin) {
+    mostrarEstado(
+      formStatus,
+      "info",
+      "Estás en modo administrador. Esta vista es solo para revisar preguntas; no guarda una evaluación."
+    );
+    return;
+  }
 
   const usuario = obtenerUsuarioActual();
 
