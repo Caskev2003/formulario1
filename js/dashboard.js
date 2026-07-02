@@ -8,6 +8,39 @@ import { obtenerPreguntas } from "./preguntas.js";
 let evaluaciones = [];
 let charts = {};
 
+// ============================================
+// CONFIGURACIÓN DE ÁREAS SEGÚN ESTRUCTURA ORGANIZACIONAL
+// ============================================
+
+const AREAS_EVALUACION = {
+  marketing: { nombre: "Marketing", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa"] },
+  recursosHumanos: { nombre: "Recursos Humanos", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa"] },
+  areaSistemas: { nombre: "Área de Sistemas", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa"] },
+  areaCompras: { nombre: "Área de Compras", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa"] },
+  chofer: { nombre: "Chofer", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa"] },
+  gerente: { nombre: "Gerente", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa", "Almacenista", "Cajero/a", "Verificador"] },
+  jefeAlmacen: { nombre: "Jefe de almacén", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa", "Almacenista"] },
+  jefeOperaciones: { nombre: "Jefe de operaciones", evaluadores: ["Gerente", "Gerente de ventas", "Gerencia administrativa", "Almacenista"] },
+  gerenteAlmacen: { nombre: "Gerente", evaluadores: ["Almacenista"] },
+  gerenteCajero: { nombre: "Gerente", evaluadores: ["Cajero/a"] },
+  gerenteVerificador: { nombre: "Gerente", evaluadores: ["Verificador"] },
+  gerenciaAdministrativa: { nombre: "Gerencia administrativa", evaluadores: ["Administrativos"] },
+  gerenciaVentas: { nombre: "Gerencia de ventas", evaluadores: ["Administrativos", "Contabilidad"] }
+};
+
+const PUESTOS_EVALUACION = {
+  "Gerente": { areas: ["Marketing", "Recursos Humanos", "Área de Sistemas", "Área de Compras", "Chofer", "Gerente", "Jefe de almacén", "Jefe de operaciones"] },
+  "Almacenista": { areas: ["Gerente", "Jefe de almacén", "Jefe de operaciones"] },
+  "Cajero/a": { areas: ["Gerente", "Área de Sistemas"] },
+  "Administrativos": { areas: ["Gerencia administrativa", "Gerencia de ventas"] },
+  "Verificador": { areas: ["Gerente"] },
+  "Contabilidad": { areas: ["Gerencia administrativa", "Gerencia de ventas"] }
+};
+
+// ============================================
+// EXPORTAR FUNCIONES PRINCIPALES
+// ============================================
+
 export async function cargarDashboard() {
   const dashboard = document.getElementById("adminPanel");
   const dashboardBody = document.getElementById("dashboardContent");
@@ -35,6 +68,10 @@ export async function cargarDashboard() {
   }
 }
 
+// ============================================
+// RENDER PRINCIPAL DEL DASHBOARD
+// ============================================
+
 function renderDashboard(container) {
   if (!evaluaciones.length) {
     container.innerHTML = `<div class="empty-state">No hay evaluaciones registradas.</div>`;
@@ -42,7 +79,7 @@ function renderDashboard(container) {
   }
 
   container.innerHTML = `
-    <div class="filter-row" style="margin-bottom:18px;">
+    <div class="filter-row" style="margin-bottom:18px; display:flex; gap:12px; flex-wrap:wrap;">
       <div class="filter-box">
         <label for="filtroSucursal">Filtrar por sucursal</label>
         <select id="filtroSucursal">
@@ -50,7 +87,6 @@ function renderDashboard(container) {
           ${obtenerSucursales(evaluaciones).map(s => `<option value="${s}">${s}</option>`).join("")}
         </select>
       </div>
-
       <div class="filter-box">
         <label for="filtroPuesto">Filtrar por puesto evaluador</label>
         <select id="filtroPuesto">
@@ -59,317 +95,127 @@ function renderDashboard(container) {
         </select>
       </div>
     </div>
-
     <div id="dashboardRender"></div>
   `;
 
   document.getElementById("filtroSucursal").addEventListener("change", actualizarVista);
   document.getElementById("filtroPuesto").addEventListener("change", actualizarVista);
-
   actualizarVista();
 }
+
+// ============================================
+// ACTUALIZAR VISTA CON FILTROS
+// ============================================
 
 function actualizarVista() {
   const sucursal = document.getElementById("filtroSucursal")?.value || "TODAS";
   const puesto = document.getElementById("filtroPuesto")?.value || "TODOS";
 
   let data = [...evaluaciones];
-
-  if (sucursal !== "TODAS") {
-    data = data.filter(item => item.sucursal === sucursal);
-  }
-
-  if (puesto !== "TODOS") {
-    data = data.filter(item => item.puestoEvaluador === puesto);
-  }
+  if (sucursal !== "TODAS") data = data.filter(item => item.sucursal === sucursal);
+  if (puesto !== "TODOS") data = data.filter(item => item.puestoEvaluador === puesto);
 
   const container = document.getElementById("dashboardRender");
-
   if (!data.length) {
     container.innerHTML = `<div class="empty-state">No hay evaluaciones con los filtros seleccionados.</div>`;
     destruirGraficas();
     return;
   }
 
-  const resumenAreas = calcularResumenPorArea(data);
-  const resumenSucursales = calcularResumenPorSucursal(data);
-  const oportunidades = calcularOportunidades(resumenAreas);
+  const resumenAreas = calcularResumenPorAreaEstructurada(data);
+  const evaluacionPorPuesto = calcularEvaluacionPorPuesto(data);
+  const analisisCompetencias = calcularAnalisisCompetencias(data);
 
   container.innerHTML = `
-    <div class="grid grid-4">
-      <div class="overview-card">
-        <div class="overview-title">Total de evaluaciones</div>
-        <div class="overview-value">${data.length}</div>
-        <div class="overview-sub">Formularios guardados.</div>
+    <!-- KPIs PRINCIPALES -->
+    <div class="kpi-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:20px;">
+      <div class="kpi-card" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6); color:#fff; padding:16px; border-radius:12px; text-align:center;">
+        <div style="font-size:28px; font-weight:700;">${data.length}</div>
+        <div style="font-size:13px; opacity:0.85;">Total evaluaciones</div>
       </div>
-
-      <div class="overview-card">
-        <div class="overview-title">Promedio general</div>
-        <div class="overview-value">${calcularPromedioGeneral(data)} / 10</div>
-        <div class="overview-sub">Promedio global filtrado.</div>
+      <div class="kpi-card" style="background:linear-gradient(135deg,#059669,#34d399); color:#fff; padding:16px; border-radius:12px; text-align:center;">
+        <div style="font-size:28px; font-weight:700;">${calcularPromedioGeneral(data)} / 10</div>
+        <div style="font-size:13px; opacity:0.85;">Promedio general</div>
       </div>
-
-      <div class="overview-card">
-        <div class="overview-title">Sucursales evaluadas</div>
-        <div class="overview-value">${contarSucursales(data)}</div>
-        <div class="overview-sub">Sucursales con respuestas.</div>
+      <div class="kpi-card" style="background:linear-gradient(135deg,#d97706,#fbbf24); color:#fff; padding:16px; border-radius:12px; text-align:center;">
+        <div style="font-size:28px; font-weight:700;">${new Set(data.map(i => i.sucursal)).size}</div>
+        <div style="font-size:13px; opacity:0.85;">Sucursales</div>
       </div>
-
-      <div class="overview-card">
-        <div class="overview-title">Áreas evaluadas</div>
-        <div class="overview-value">${Object.keys(resumenAreas).length}</div>
-        <div class="overview-sub">Áreas dentro del periodo.</div>
+      <div class="kpi-card" style="background:linear-gradient(135deg,#dc2626,#f87171); color:#fff; padding:16px; border-radius:12px; text-align:center;">
+        <div style="font-size:28px; font-weight:700;">${Object.keys(evaluacionPorPuesto).length}</div>
+        <div style="font-size:13px; opacity:0.85;">Puestos evaluadores</div>
       </div>
     </div>
 
-    <div class="dashboard-grid" style="margin-top:18px;">
-      <div class="chart-card">
-        <div class="chart-title">Promedio por área evaluada</div>
-        <div class="soft-text">Escala de 1 a 10.</div>
-        <div class="chart-wrap"><canvas id="chartAreas"></canvas></div>
+    <!-- GRÁFICAS PRINCIPALES -->
+    <div class="dashboard-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px;">
+      <div class="chart-card" style="background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div class="chart-title" style="font-weight:600; margin-bottom:6px;">📊 Promedio por área</div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="chartAreas"></canvas></div>
       </div>
-
-      <div class="chart-card">
-        <div class="chart-title">Promedio por sucursal</div>
-        <div class="soft-text">Comparativo general por sucursal.</div>
-        <div class="chart-wrap"><canvas id="chartSucursales"></canvas></div>
+      <div class="chart-card" style="background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div class="chart-title" style="font-weight:600; margin-bottom:6px;">📈 Top 5 áreas con oportunidad</div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="chartOportunidades"></canvas></div>
       </div>
     </div>
 
-    <div class="dashboard-grid" style="margin-top:18px;">
-      <div class="chart-card">
-        <div class="chart-title">Áreas con mayor oportunidad de mejora</div>
-        <div class="soft-text">Menores promedios por área evaluada.</div>
-        <div class="chart-wrap"><canvas id="chartOportunidades"></canvas></div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">Distribución por puesto evaluador</div>
-        <div class="soft-text">Cantidad de evaluaciones por puesto.</div>
-        <div class="chart-wrap small"><canvas id="chartPuestos"></canvas></div>
-      </div>
+    <!-- MATRIZ PUESTO VS ÁREA -->
+    <div class="card" style="background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:20px;">
+      <div class="section-header" style="font-weight:600; margin-bottom:12px;">📋 Matriz: Puesto Evaluador → Área Evaluada</div>
+      ${renderMatrizEvaluacion(evaluacionPorPuesto)}
     </div>
 
-    <div class="card" style="margin-top:20px;">
-      <div class="section-header">📊 Resumen por área con desglose de preguntas</div>
-      <div class="section-body">
-        ${renderResumenAreasConPreguntas(resumenAreas, data)}
-      </div>
+    <!-- ANÁLISIS DE COMPETENCIAS -->
+    <div class="card" style="background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:20px;">
+      <div class="section-header" style="font-weight:600; margin-bottom:12px;">🎯 Análisis de competencias por área</div>
+      ${renderAnalisisCompetencias(analisisCompetencias)}
     </div>
 
-    <div class="card">
-      <div class="section-header">🔍 Respuestas individuales</div>
-      <div class="section-body">
-        <div class="selector-row">
-          <div style="flex:1; min-width:280px;">
-            <label for="responseSelector">Selecciona una evaluación</label>
-            <select id="responseSelector">
-              <option value="">Selecciona una respuesta</option>
-              ${data.map(item => `
-                <option value="${item.id}">
-                  ${item.fecha || "-"} | ${item.numeroTrabajador || "-"} | ${item.sucursal || "-"} | ${item.puestoEvaluador || "-"}
-                </option>
-              `).join("")}
-            </select>
-          </div>
-
-          <div class="user-badge" id="selectedResponse">Sin selección</div>
-        </div>
-
-        <div id="individualResponseContent" style="margin-top:18px;"></div>
-      </div>
+    <!-- MAPA DE CALOR DE EVALUACIONES -->
+    <div class="card" style="background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:20px;">
+      <div class="section-header" style="font-weight:600; margin-bottom:12px;">🔥 Distribución de evaluaciones</div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="chartDistribucion"></canvas></div>
     </div>
 
-    <div class="card">
-      <div class="section-header">📋 Evaluaciones registradas</div>
-      <div class="section-body">
-        ${renderTablaEvaluaciones(data)}
-      </div>
+    <!-- TABLA RESUMEN -->
+    <div class="card" style="background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div class="section-header" style="font-weight:600; margin-bottom:12px;">📋 Resumen de evaluaciones</div>
+      ${renderTablaResumen(data)}
     </div>
   `;
 
-  renderGraficas(resumenAreas, resumenSucursales, oportunidades, data);
-  configurarSelectorIndividual(data);
+  renderGraficas(resumenAreas, data);
 }
 
 // ============================================
-// CONVERSIÓN DE ESCALA: 1-5 → 1-10
+// CÁLCULO DE RESUMEN POR ÁREA
 // ============================================
 
-function convertirAEscala10(valor) {
-  return Number((valor * 2).toFixed(1));
-}
-
-function convertirPromedioAEscala10(promedio) {
-  return Number((promedio * 2).toFixed(1));
-}
-
-// ============================================
-// GRÁFICAS
-// ============================================
-
-function renderGraficas(resumenAreas, resumenSucursales, oportunidades, data) {
-  destruirGraficas();
-
-  const areasLabels = Object.values(resumenAreas).map(a => a.area);
-  const areasValues = Object.values(resumenAreas).map(a => 
-    convertirPromedioAEscala10(promedio(a.suma, a.total))
-  );
-
-  charts.areas = crearBarChart("chartAreas", areasLabels, areasValues);
-
-  const sucLabels = Object.keys(resumenSucursales);
-  const sucValues = Object.values(resumenSucursales).map(s => 
-    convertirPromedioAEscala10(promedio(s.suma, s.total))
-  );
-
-  charts.sucursales = crearBarChart("chartSucursales", sucLabels, sucValues);
-
-  charts.oportunidades = crearHorizontalBarChart(
-    "chartOportunidades",
-    oportunidades.map(o => o.area),
-    oportunidades.map(o => convertirPromedioAEscala10(o.promedio))
-  );
-
-  const puestos = contarPorPuesto(data);
-  charts.puestos = crearDoughnutChart(
-    "chartPuestos",
-    Object.keys(puestos),
-    Object.values(puestos)
-  );
-}
-
-function crearBarChart(canvasId, labels, data) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas || typeof Chart === "undefined") return null;
-
-  return new Chart(canvas, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Promedio /10",
-        data,
-        borderRadius: 10,
-        backgroundColor: [
-          '#6d28d9', '#7c3aed', '#8b5cf6', '#a78bfa', 
-          '#c4b5fd', '#ddd6fe', '#ede9fe'
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: { beginAtZero: true, max: 10 }
-      },
-      plugins: {
-        legend: { display: false }
-      }
-    }
-  });
-}
-
-function crearHorizontalBarChart(canvasId, labels, data) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas || typeof Chart === "undefined") return null;
-
-  return new Chart(canvas, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Promedio /10",
-        data,
-        borderRadius: 10,
-        backgroundColor: [
-          '#f59e0b', '#fbbf24', '#fcd34d', '#fde68a', 
-          '#fef3c7', '#fffbeb'
-        ]
-      }]
-    },
-    options: {
-      indexAxis: "y",
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: { beginAtZero: true, max: 10 }
-      },
-      plugins: {
-        legend: { display: false }
-      }
-    }
-  });
-}
-
-function crearDoughnutChart(canvasId, labels, data) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas || typeof Chart === "undefined") return null;
-
-  return new Chart(canvas, {
-    type: "doughnut",
-    data: {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: [
-          '#6d28d9', '#7c3aed', '#8b5cf6', '#a78bfa',
-          '#c4b5fd', '#ddd6fe', '#ede9fe'
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-}
-
-function destruirGraficas() {
-  Object.values(charts).forEach(chart => {
-    if (chart) chart.destroy();
-  });
-  charts = {};
-}
-
-// ============================================
-// CÁLCULOS
-// ============================================
-
-function calcularResumenPorArea(data) {
+function calcularResumenPorAreaEstructurada(data) {
   const resumen = {};
 
   data.forEach(item => {
+    const puestoEvaluador = item.puestoEvaluador || "";
+    const areasPermitidas = PUESTOS_EVALUACION[puestoEvaluador]?.areas || [];
+
     Object.entries(item.evaluaciones || {}).forEach(([areaKey, areaData]) => {
-      if (!resumen[areaKey]) {
-        resumen[areaKey] = {
-          area: areaData.area || obtenerNombreArea(areaKey),
-          total: 0,
-          suma: 0,
-          competencias: {},
-          todasLasRespuestas: []
-        };
+      const nombreArea = areaData.area || obtenerNombreArea(areaKey) || areaKey;
+      
+      if (!areasPermitidas.includes(nombreArea) && areasPermitidas.length > 0) return;
+
+      if (!resumen[nombreArea]) {
+        resumen[nombreArea] = { area: nombreArea, total: 0, suma: 0, competencias: {} };
       }
 
-      const promedioArea = Number(areaData.promedio || 0);
-      resumen[areaKey].total++;
-      resumen[areaKey].suma += promedioArea;
-
-      if (areaData.respuestas) {
-        resumen[areaKey].todasLasRespuestas.push(areaData.respuestas);
-      }
+      resumen[nombreArea].total++;
+      resumen[nombreArea].suma += Number(areaData.promedio || 0);
 
       Object.entries(areaData.promedioCompetencias || {}).forEach(([competencia, valor]) => {
-        if (!resumen[areaKey].competencias[competencia]) {
-          resumen[areaKey].competencias[competencia] = {
-            total: 0,
-            suma: 0,
-            respuestas: []
-          };
+        if (!resumen[nombreArea].competencias[competencia]) {
+          resumen[nombreArea].competencias[competencia] = { total: 0, suma: 0 };
         }
-
-        resumen[areaKey].competencias[competencia].total++;
-        resumen[areaKey].competencias[competencia].suma += Number(valor || 0);
+        resumen[nombreArea].competencias[competencia].total++;
+        resumen[nombreArea].competencias[competencia].suma += Number(valor || 0);
       });
     });
   });
@@ -377,307 +223,114 @@ function calcularResumenPorArea(data) {
   return resumen;
 }
 
-function calcularResumenPorSucursal(data) {
-  const resumen = {};
+// ============================================
+// CALCULAR ANÁLISIS DE COMPETENCIAS
+// ============================================
+
+function calcularAnalisisCompetencias(data) {
+  const competencias = {};
 
   data.forEach(item => {
-    const sucursal = item.sucursal || "Sin sucursal";
-
-    if (!resumen[sucursal]) {
-      resumen[sucursal] = { total: 0, suma: 0 };
-    }
-
-    resumen[sucursal].total++;
-    resumen[sucursal].suma += Number(item.promedioGeneral || 0);
+    Object.entries(item.evaluaciones || {}).forEach(([areaKey, areaData]) => {
+      const nombreArea = areaData.area || obtenerNombreArea(areaKey) || areaKey;
+      
+      Object.entries(areaData.promedioCompetencias || {}).forEach(([competencia, valor]) => {
+        const key = `${nombreArea}|${competencia}`;
+        if (!competencias[key]) {
+          competencias[key] = { area: nombreArea, competencia, total: 0, suma: 0 };
+        }
+        competencias[key].total++;
+        competencias[key].suma += Number(valor || 0);
+      });
+    });
   });
 
-  return resumen;
-}
-
-function calcularOportunidades(resumenAreas) {
-  return Object.values(resumenAreas)
-    .map(item => ({
-      area: item.area,
-      promedio: promedio(item.suma, item.total)
-    }))
-    .sort((a, b) => a.promedio - b.promedio)
-    .slice(0, 8);
+  return Object.values(competencias).map(c => ({
+    ...c,
+    promedio: c.suma / c.total
+  })).sort((a, b) => b.promedio - a.promedio);
 }
 
 // ============================================
-// OBTENER TEXTO DE PREGUNTA POR ID
+// CALCULAR EVALUACIÓN POR PUESTO
 // ============================================
 
-function obtenerTextoPregunta(areaKey, preguntaId) {
-  try {
-    const banco = obtenerPreguntas(areaKey);
-    if (!banco || !banco.preguntas) return preguntaId;
+function calcularEvaluacionPorPuesto(data) {
+  const resultado = {};
 
-    const pregunta = banco.preguntas.find(p => p.id === preguntaId);
-    return pregunta ? pregunta.texto : preguntaId;
-  } catch (error) {
-    return preguntaId;
-  }
-}
-
-// ============================================
-// RENDER DE RESUMEN POR ÁREA CON DESGLOSE DE PREGUNTAS
-// ============================================
-
-function renderResumenAreasConPreguntas(resumenAreas, data) {
-  return Object.entries(resumenAreas).map(([areaKey, areaData]) => {
-    const prom = promedio(areaData.suma, areaData.total);
-    const promEscala10 = convertirPromedioAEscala10(prom);
-
-    return `
-      <div class="metric-card" style="margin-bottom:24px; border: 2px solid var(--border); border-radius: 16px; padding: 20px; background: #fcfcff;">
-        <div class="metric-title" style="font-size: 20px; margin-bottom: 12px; color: var(--primary);">
-          📂 ${areaData.area}
-        </div>
-
-        <div class="metric-row">
-          <span class="pill score">⭐ Promedio: ${promEscala10} / 10</span>
-          <span class="pill count">📊 Evaluaciones: ${areaData.total}</span>
-          <span class="pill ${claseInterpretacion(promEscala10)}">${interpretacion(promEscala10)}</span>
-        </div>
-
-        <div class="bar">
-          <div style="width:${Math.min((promEscala10 / 10) * 100, 100)}%"></div>
-        </div>
-
-        <div style="margin-top: 20px;">
-          <div style="font-weight: 700; color: var(--muted); margin-bottom: 12px; font-size: 15px; border-bottom: 2px solid #ede9fe; padding-bottom: 8px;">
-            📋 Desglose detallado por competencia y pregunta:
-          </div>
-          ${renderCompetenciasConPreguntasDetallado(areaData.competencias, areaKey, data)}
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-// ============================================
-// RENDER DE COMPETENCIAS CON PREGUNTAS DETALLADO
-// ============================================
-
-function renderCompetenciasConPreguntasDetallado(competencias, areaKey, data) {
-  if (!competencias || Object.keys(competencias).length === 0) {
-    return `<div class="empty-state" style="padding: 12px;">Sin competencias registradas</div>`;
-  }
-
-  return Object.entries(competencias).map(([nombre, compData]) => {
-    const prom = promedio(compData.suma, compData.total);
-    const promEscala10 = convertirPromedioAEscala10(prom);
-
-    // Obtener todas las respuestas individuales para esta competencia
-    const todasRespuestas = [];
-    data.forEach(item => {
-      const area = item.evaluaciones?.[areaKey];
-      if (area && area.respuestas) {
-        Object.entries(area.respuestas).forEach(([preguntaId, valor]) => {
-          const textoPregunta = obtenerTextoPregunta(areaKey, preguntaId);
-          todasRespuestas.push({
-            id: preguntaId,
-            texto: textoPregunta,
-            valor: Number(valor) || 0,
-            evaluacion: item.numeroTrabajador || "Anónimo"
-          });
-        });
-      }
-    });
-
-    // Agrupar respuestas por pregunta
-    const preguntasAgrupadas = {};
-    todasRespuestas.forEach(r => {
-      if (!preguntasAgrupadas[r.id]) {
-        preguntasAgrupadas[r.id] = {
-          texto: r.texto,
-          valores: [],
-          evaluaciones: []
-        };
-      }
-      preguntasAgrupadas[r.id].valores.push(r.valor);
-      preguntasAgrupadas[r.id].evaluaciones.push(r.evaluacion);
-    });
-
-    return `
-      <div class="response-item" style="margin-bottom: 16px; border-left: 4px solid #8b5cf6; background: #ffffff; padding: 14px; border-radius: 8px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <strong style="font-size: 16px; color: #4c1d95;">${nombre}</strong>
-          <span style="font-weight: 700; color: #6d28d9; font-size: 15px;">⭐ ${promEscala10} / 10</span>
-        </div>
-
-        <div style="margin-top: 10px; padding: 12px; background: #f9fafb; border-radius: 8px;">
-          <div style="font-weight: 600; color: var(--muted); font-size: 13px; margin-bottom: 8px;">
-            📝 Preguntas y calificaciones:
-          </div>
-          ${Object.entries(preguntasAgrupadas).length > 0 ? `
-            <div style="display: grid; grid-template-columns: 1fr; gap: 6px;">
-              ${Object.entries(preguntasAgrupadas).map(([id, p]) => {
-                return p.valores.map((valor, index) => {
-                  const valorEscala10 = convertirAEscala10(valor);
-                  const evaluacion = p.evaluaciones[index] || "Anónimo";
-                  return `
-                    <div style="padding: 8px 12px; border-bottom: 1px solid #f3f4f6; background: white; border-radius: 6px;">
-                      <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <div style="font-size: 14px; color: #1f2937; font-weight: 500;">
-                          ${p.texto}
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                          <span style="font-size: 12px; color: #9ca3af;">
-                            👤 ${evaluacion}
-                          </span>
-                          <span style="font-weight: 700; color: #6d28d9; font-size: 14px;">
-                            ${valor} → ${valorEscala10} / 10
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  `;
-                }).join("");
-              }).join("")}
-            </div>
-          ` : `
-            <div style="color: #9ca3af; font-size: 13px; padding: 8px;">
-              No hay respuestas individuales disponibles
-            </div>
-          `}
-        </div>
-
-        <div style="font-size: 13px; color: var(--muted); margin-top: 8px; display: flex; gap: 16px; flex-wrap: wrap;">
-          <span>📊 ${compData.total} respuestas</span>
-          <span>📈 Promedio escala 1-5: ${prom}</span>
-          <span>🎯 ${Object.keys(preguntasAgrupadas).length} preguntas</span>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-// ============================================
-// RENDER DE RESPUESTA INDIVIDUAL
-// ============================================
-
-function renderRespuestaIndividual(item) {
-  return `
-    <div class="response-card" style="padding: 20px;">
-      <h4 style="display: flex; justify-content: space-between; align-items: center;">
-        <span>📋 Evaluación individual</span>
-        <span class="pill score">⭐ ${convertirPromedioAEscala10(item.promedioGeneral || 0)} / 10</span>
-      </h4>
-
-      <div class="response-meta" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; background: #f9fafb; padding: 12px; border-radius: 8px;">
-        <div><strong>📅 Fecha:</strong> ${item.fecha || "-"}</div>
-        <div><strong>👤 Número:</strong> ${item.numeroTrabajador || "-"}</div>
-        <div><strong>🏢 Sucursal:</strong> ${item.sucursal || "-"}</div>
-        <div><strong>👔 Puesto:</strong> ${item.puestoEvaluador || "-"}</div>
-        <div><strong>✉️ Correo:</strong> ${item.email || "-"}</div>
-      </div>
-
-      ${Object.entries(item.evaluaciones || {}).map(([areaKey, area]) => {
-        const promEscala10 = convertirPromedioAEscala10(area.promedio || 0);
-        
-        return `
-          <div class="metric-card" style="margin-bottom:16px; border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
-            <div class="metric-title" style="font-size: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-              <span>${area.area || obtenerNombreArea(areaKey)}</span>
-              <span class="pill score">⭐ ${promEscala10} / 10</span>
-            </div>
-
-            ${area.respuestas ? `
-              <div style="margin-top: 12px; padding: 12px; background: #f9fafb; border-radius: 8px;">
-                <div style="font-weight: 600; color: var(--muted); font-size: 13px; margin-bottom: 8px;">
-                  📝 Respuestas por pregunta:
-                </div>
-                ${Object.entries(area.respuestas).map(([preguntaId, respuesta]) => {
-                  const valorEscala10 = convertirAEscala10(Number(respuesta) || 0);
-                  const textoPregunta = obtenerTextoPregunta(areaKey, preguntaId);
-                  return `
-                    <div style="padding: 6px 10px; border-bottom: 1px solid #f3f4f6; font-size: 14px;">
-                      <div style="color: #1f2937; font-weight: 500; margin-bottom: 2px;">
-                        ${textoPregunta}
-                      </div>
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #6b7280; font-size: 12px;">ID: ${preguntaId}</span>
-                        <span style="font-weight: 700; color: #6d28d9;">
-                          ${respuesta} → ${valorEscala10} / 10
-                        </span>
-                      </div>
-                    </div>
-                  `;
-                }).join("")}
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join("")}
-    </div>
-  `;
-}
-
-// ============================================
-// CONFIGURAR SELECTOR INDIVIDUAL
-// ============================================
-
-function configurarSelectorIndividual(data) {
-  const selector = document.getElementById("responseSelector");
-  const badge = document.getElementById("selectedResponse");
-  const content = document.getElementById("individualResponseContent");
-
-  if (!selector || !badge || !content) return;
-
-  selector.addEventListener("change", () => {
-    const id = selector.value;
-
-    if (!id) {
-      badge.textContent = "Sin selección";
-      content.innerHTML = "";
-      return;
+  data.forEach(item => {
+    const puesto = item.puestoEvaluador || "Sin puesto";
+    if (!resultado[puesto]) {
+      resultado[puesto] = { total: 0, areas: {}, promedioGeneral: 0 };
     }
 
-    const item = data.find(e => e.id === id);
-
-    if (!item) return;
-
-    badge.textContent = `${item.numeroTrabajador || "-"} | ${item.sucursal || "-"} | ${item.puestoEvaluador || "-"}`;
-    content.innerHTML = renderRespuestaIndividual(item);
+    resultado[puesto].total++;
+    
+    Object.entries(item.evaluaciones || {}).forEach(([areaKey, areaData]) => {
+      const nombreArea = areaData.area || obtenerNombreArea(areaKey) || areaKey;
+      if (!resultado[puesto].areas[nombreArea]) {
+        resultado[puesto].areas[nombreArea] = { total: 0, suma: 0, promedio: 0 };
+      }
+      resultado[puesto].areas[nombreArea].total++;
+      resultado[puesto].areas[nombreArea].suma += Number(areaData.promedio || 0);
+      resultado[puesto].areas[nombreArea].promedio = 
+        resultado[puesto].areas[nombreArea].suma / resultado[puesto].areas[nombreArea].total;
+    });
   });
+
+  Object.values(resultado).forEach(puesto => {
+    const values = Object.values(puesto.areas).map(a => a.promedio);
+    puesto.promedioGeneral = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+  });
+
+  return resultado;
 }
 
 // ============================================
-// TABLA DE EVALUACIONES
+// RENDER MATRIZ DE EVALUACIÓN
 // ============================================
 
-function renderTablaEvaluaciones(data) {
+function renderMatrizEvaluacion(evaluacionPorPuesto) {
+  const puestos = Object.keys(evaluacionPorPuesto);
+  const todasAreas = new Set();
+  
+  Object.values(evaluacionPorPuesto).forEach(puesto => {
+    Object.keys(puesto.areas).forEach(area => todasAreas.add(area));
+  });
+
+  const areasArray = Array.from(todasAreas).sort();
+
   return `
     <div style="overflow-x:auto;">
-      <table class="data-table">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
         <thead>
-          <tr>
-            <th>📅 Fecha</th>
-            <th>👤 Número</th>
-            <th>🏢 Sucursal</th>
-            <th>👔 Puesto</th>
-            <th>✉️ Correo</th>
-            <th>⭐ Promedio</th>
+          <tr style="background:#f8fafc;">
+            <th style="padding:8px 12px; text-align:left; border-bottom:2px solid #e2e8f0;">Puesto</th>
+            ${areasArray.map(area => `<th style="padding:8px 12px; text-align:center; border-bottom:2px solid #e2e8f0;">${area}</th>`).join("")}
+            <th style="padding:8px 12px; text-align:center; border-bottom:2px solid #e2e8f0;">Prom.</th>
           </tr>
         </thead>
-
         <tbody>
-          ${data.map(item => `
-            <tr>
-              <td>${item.fecha || "-"}</td>
-              <td><strong>${item.numeroTrabajador || "-"}</strong></td>
-              <td>${item.sucursal || "-"}</td>
-              <td>${item.puestoEvaluador || "-"}</td>
-              <td>${item.email || "-"}</td>
-              <td>
-                <span class="pill ${claseInterpretacion(convertirPromedioAEscala10(item.promedioGeneral || 0))}">
-                  ${convertirPromedioAEscala10(item.promedioGeneral || 0)} / 10
-                </span>
-              </td>
-            </tr>
-          `).join("")}
+          ${puestos.map(puesto => {
+            const data = evaluacionPorPuesto[puesto];
+            return `
+              <tr>
+                <td style="padding:6px 12px; font-weight:600; border-bottom:1px solid #f1f5f9;">${puesto}</td>
+                ${areasArray.map(area => {
+                  const areaData = data.areas[area];
+                  if (areaData) {
+                    const prom = convertirPromedioAEscala10(areaData.suma / areaData.total);
+                    const color = prom >= 8 ? '#10b981' : prom >= 6 ? '#f59e0b' : '#ef4444';
+                    return `<td style="padding:6px 12px; text-align:center; border-bottom:1px solid #f1f5f9;">
+                      <span style="background:${color}20; color:${color}; padding:2px 10px; border-radius:20px; font-weight:600; font-size:12px;">${prom}</span>
+                    </td>`;
+                  }
+                  return `<td style="padding:6px 12px; text-align:center; border-bottom:1px solid #f1f5f9; color:#cbd5e1;">—</td>`;
+                }).join("")}
+                <td style="padding:6px 12px; text-align:center; border-bottom:1px solid #f1f5f9; font-weight:700;">${convertirPromedioAEscala10(data.promedioGeneral)}</td>
+              </tr>
+            `;
+          }).join("")}
         </tbody>
       </table>
     </div>
@@ -685,68 +338,203 @@ function renderTablaEvaluaciones(data) {
 }
 
 // ============================================
-// FUNCIONES AUXILIARES
+// RENDER ANÁLISIS DE COMPETENCIAS
 // ============================================
 
-function calcularPromedioGeneral(data) {
-  const valores = data
-    .map(item => Number(item.promedioGeneral || 0))
-    .filter(v => !Number.isNaN(v) && v > 0);
+function renderAnalisisCompetencias(competencias) {
+  const top = competencias.slice(0, 6);
+  const bottom = competencias.slice(-6).reverse();
 
-  if (!valores.length) return "0.0";
-
-  const prom = promedio(valores.reduce((a, b) => a + b, 0), valores.length);
-  return convertirPromedioAEscala10(prom);
+  return `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div>
+        <div style="font-weight:600; color:#059669; margin-bottom:8px;">✅ Fortalezas (mejores competencias)</div>
+        ${top.map(c => `
+          <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+            <span>${c.area} — ${c.competencia}</span>
+            <span style="font-weight:700; color:#059669;">${convertirPromedioAEscala10(c.promedio)}</span>
+          </div>
+        `).join("")}
+      </div>
+      <div>
+        <div style="font-weight:600; color:#dc2626; margin-bottom:8px;">⚠️ Áreas de oportunidad</div>
+        ${bottom.map(c => `
+          <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+            <span>${c.area} — ${c.competencia}</span>
+            <span style="font-weight:700; color:#dc2626;">${convertirPromedioAEscala10(c.promedio)}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
 }
 
-function contarSucursales(data) {
-  return new Set(data.map(item => item.sucursal).filter(Boolean)).size;
-}
+// ============================================
+// RENDER TABLA RESUMEN
+// ============================================
 
-function contarPorPuesto(data) {
-  const conteo = {};
-
+function renderTablaResumen(data) {
+  const areas = {};
   data.forEach(item => {
-    const puesto = item.puestoEvaluador || "Sin puesto";
-    conteo[puesto] = (conteo[puesto] || 0) + 1;
+    Object.entries(item.evaluaciones || {}).forEach(([areaKey, areaData]) => {
+      const nombre = areaData.area || obtenerNombreArea(areaKey) || areaKey;
+      if (!areas[nombre]) areas[nombre] = { total: 0, suma: 0 };
+      areas[nombre].total++;
+      areas[nombre].suma += Number(areaData.promedio || 0);
+    });
   });
 
-  return conteo;
+  return `
+    <div style="overflow-x:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:#f8fafc;">
+            <th style="padding:8px 12px; text-align:left; border-bottom:2px solid #e2e8f0;">Área evaluada</th>
+            <th style="padding:8px 12px; text-align:center; border-bottom:2px solid #e2e8f0;">Evaluaciones</th>
+            <th style="padding:8px 12px; text-align:center; border-bottom:2px solid #e2e8f0;">Promedio</th>
+            <th style="padding:8px 12px; text-align:center; border-bottom:2px solid #e2e8f0;">Nivel</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.entries(areas).sort((a,b) => {
+            const promA = a[1].suma / a[1].total;
+            const promB = b[1].suma / b[1].total;
+            return promB - promA;
+          }).map(([nombre, datos]) => {
+            const prom = convertirPromedioAEscala10(datos.suma / datos.total);
+            const nivel = prom >= 8 ? '🌟 Excelente' : prom >= 6 ? '👍 Bueno' : '⚠️ Mejorar';
+            const color = prom >= 8 ? '#10b981' : prom >= 6 ? '#f59e0b' : '#ef4444';
+            return `
+              <tr>
+                <td style="padding:6px 12px; font-weight:500; border-bottom:1px solid #f1f5f9;">${nombre}</td>
+                <td style="padding:6px 12px; text-align:center; border-bottom:1px solid #f1f5f9;">${datos.total}</td>
+                <td style="padding:6px 12px; text-align:center; border-bottom:1px solid #f1f5f9; font-weight:700; color:${color};">${prom}</td>
+                <td style="padding:6px 12px; text-align:center; border-bottom:1px solid #f1f5f9;">
+                  <span style="background:${color}20; color:${color}; padding:2px 12px; border-radius:20px; font-size:12px;">${nivel}</span>
+                </td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ============================================
+// GRÁFICAS
+// ============================================
+
+function renderGraficas(resumenAreas, data) {
+  destruirGraficas();
+
+  // Gráfica de áreas
+  const areasLabels = Object.keys(resumenAreas);
+  const areasValues = Object.values(resumenAreas).map(a => 
+    convertirPromedioAEscala10(a.suma / a.total)
+  );
+
+  const canvasAreas = document.getElementById("chartAreas");
+  if (canvasAreas) {
+    charts.areas = new Chart(canvasAreas, {
+      type: "bar",
+      data: {
+        labels: areasLabels,
+        datasets: [{
+          label: "Promedio /10",
+          data: areasValues,
+          borderRadius: 8,
+          backgroundColor: areasValues.map(v => v >= 8 ? '#10b981' : v >= 6 ? '#f59e0b' : '#ef4444')
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, max: 10 } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  // Gráfica de oportunidades (bottom 5)
+  const oportunidades = Object.entries(resumenAreas)
+    .map(([area, data]) => ({ area, promedio: data.suma / data.total }))
+    .sort((a, b) => a.promedio - b.promedio)
+    .slice(0, 5);
+
+  const canvasOportunidades = document.getElementById("chartOportunidades");
+  if (canvasOportunidades) {
+    charts.oportunidades = new Chart(canvasOportunidades, {
+      type: "bar",
+      data: {
+        labels: oportunidades.map(o => o.area),
+        datasets: [{
+          label: "Promedio /10",
+          data: oportunidades.map(o => convertirPromedioAEscala10(o.promedio)),
+          borderRadius: 8,
+          backgroundColor: ['#ef4444', '#f59e0b', '#f59e0b', '#fbbf24', '#fbbf24']
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { x: { beginAtZero: true, max: 10 } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  // Distribución de evaluaciones (donut)
+  const puestos = {};
+  data.forEach(item => {
+    const p = item.puestoEvaluador || "Sin puesto";
+    puestos[p] = (puestos[p] || 0) + 1;
+  });
+
+  const canvasDistribucion = document.getElementById("chartDistribucion");
+  if (canvasDistribucion) {
+    charts.distribucion = new Chart(canvasDistribucion, {
+      type: "doughnut",
+      data: {
+        labels: Object.keys(puestos),
+        datasets: [{
+          data: Object.values(puestos),
+          backgroundColor: ['#6d28d9', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } }
+      }
+    });
+  }
+}
+
+// ============================================
+// CONVERSIÓN DE ESCALA
+// ============================================
+
+function convertirPromedioAEscala10(promedio) {
+  return Number((promedio * 2).toFixed(1));
+}
+
+function calcularPromedioGeneral(data) {
+  const valores = data.map(i => Number(i.promedioGeneral || 0)).filter(v => !isNaN(v) && v > 0);
+  if (!valores.length) return "0.0";
+  return convertirPromedioAEscala10(valores.reduce((a, b) => a + b, 0) / valores.length);
 }
 
 function obtenerSucursales(data) {
-  return [...new Set(data.map(item => item.sucursal).filter(Boolean))].sort();
+  return [...new Set(data.map(i => i.sucursal).filter(Boolean))].sort();
 }
 
 function obtenerPuestos(data) {
-  return [...new Set(data.map(item => item.puestoEvaluador).filter(Boolean))].sort();
+  return [...new Set(data.map(i => i.puestoEvaluador).filter(Boolean))].sort();
 }
 
-function promedio(suma, total) {
-  if (!total) return "0.0";
-  return (Number(suma) / Number(total)).toFixed(1);
-}
-
-// ============================================
-// INTERPRETACIÓN EN ESCALA 1-10
-// ============================================
-
-function interpretacion(promedio) {
-  const p = Number(promedio);
-
-  if (p >= 9.0) return "🌟 Excelente";
-  if (p >= 8.0) return "👍 Muy bien";
-  if (p >= 7.0) return "📊 Bueno";
-  if (p >= 6.0) return "📈 Aceptable";
-  return "💪 Área por fortalecer";
-}
-
-function claseInterpretacion(promedio) {
-  const p = Number(promedio);
-
-  if (p >= 9.0) return "excelente";
-  if (p >= 8.0) return "muybien";
-  if (p >= 7.0) return "regular";
-  if (p >= 6.0) return "aceptable";
-  return "mejorar";
+function destruirGraficas() {
+  Object.values(charts).forEach(chart => { if (chart) chart.destroy(); });
+  charts = {};
 }
