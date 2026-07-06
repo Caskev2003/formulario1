@@ -26,16 +26,64 @@
       </p>
     </div>
 
-    <div class="card">
+    <div class="card" id="accessPanel">
       <div class="section-header">Acceso</div>
 
       <div class="section-body">
         <div class="auth-box">
           <div id="userState" class="user-badge">No has iniciado sesión</div>
 
+          <div class="info" style="margin-bottom:16px;">
+            <strong>Indicaciones para ingresar:</strong><br><br>
+
+            Si tienes una cuenta de <strong>Google o Gmail</strong>, presiona
+            <strong>“Ingresar con Google”</strong>.
+            <br><br>
+
+            Si usas <strong>Outlook, Hotmail, correo institucional o corporativo</strong>,
+            escribe tu correo y una contraseña, después presiona
+            <strong>“Entrar con otro correo”</strong>.
+            <br><br>
+
+            Si es la primera vez que usas ese correo, presiona
+            <strong>“Registrar mi correo”</strong> para poder ingresar.
+            <br><br>
+
+            Cada persona solo podrá enviar una evaluación. Una vez enviada, no podrá
+            volver a contestar ni modificar sus respuestas.
+          </div>
+
+          <input
+            id="loginEmail"
+            type="email"
+            placeholder="Correo electrónico"
+            autocomplete="email"
+            style="width:100%; margin-bottom:12px;"
+          />
+
+          <input
+            id="loginPassword"
+            type="password"
+            placeholder="Contraseña"
+            autocomplete="current-password"
+            style="width:100%; margin-bottom:12px;"
+          />
+
           <div style="display:flex; gap:12px; flex-wrap:wrap; width:100%;">
-            <button id="btnLogin" class="btn btn-primary" type="button" style="flex:1;">
+            <button id="btnLoginGoogle" class="btn btn-primary" type="button" style="flex:1;">
               Ingresar con Google
+            </button>
+
+            <button id="btnLoginEmail" class="btn btn-success" type="button" style="flex:1;">
+              Entrar con otro correo
+            </button>
+
+            <button id="btnCrearCuenta" class="btn btn-secondary" type="button" style="flex:1;">
+              Registrar mi correo
+            </button>
+
+            <button id="btnRecuperarPassword" class="btn btn-secondary" type="button" style="flex:1;">
+              Olvidé mi contraseña
             </button>
 
             <button id="btnLogout" class="btn btn-secondary hidden" type="button" style="flex:1;">
@@ -64,6 +112,16 @@
 
           <div class="section-body">
 
+            <div class="info" style="margin-bottom:18px;">
+              <strong>Antes de iniciar:</strong><br><br>
+              Coloca correctamente tu <strong>número de trabajador</strong>, selecciona la
+              <strong>sucursal a la que perteneces</strong> y elige tu
+              <strong>puesto actual</strong>.
+              <br><br>
+              Verifica bien tus datos antes de confirmar. Una vez enviada la evaluación,
+              no podrás volver a responder ni repetir el mismo número de trabajador.
+            </div>
+
             <div class="grid grid-2">
               <div>
                 <label for="numeroTrabajador">Número de trabajador</label>
@@ -71,7 +129,7 @@
               </div>
 
               <div>
-                <label for="sucursal">Sucursal</label>
+                <label for="sucursal">Sucursal a la que perteneces</label>
                 <select id="sucursal" name="sucursal" required>
                   <option value="">Selecciona una sucursal</option>
                 </select>
@@ -90,10 +148,6 @@
                 <label for="fecha">Fecha de realización</label>
                 <input id="fecha" name="fecha" type="date" required />
               </div>
-            </div>
-
-            <div class="info" style="margin-top:16px;">
-              Selecciona tu puesto para cargar automáticamente las áreas que debes evaluar.
             </div>
 
           </div>
@@ -139,6 +193,34 @@
 
           <div id="dashboardContent" style="margin-top:20px;"></div>
         </div>
+      </div>
+    </div>
+
+    <div id="graciasPanel" class="hidden">
+      <div class="card" style="text-align:center; padding:55px;">
+        <div style="font-size:75px; margin-bottom:20px;">🎉</div>
+
+        <h1 style="color:#6d28d9; margin-bottom:20px;">
+          ¡Gracias por tu participación!
+        </h1>
+
+        <p style="font-size:20px; line-height:1.7; color:#4b5563;">
+          Tu evaluación ha sido registrada correctamente.
+        </p>
+
+        <p style="font-size:20px; line-height:1.7; color:#4b5563;">
+          Agradecemos sinceramente el tiempo que dedicaste a responder.
+          Tus respuestas contribuyen a fortalecer el trabajo en equipo,
+          mejorar nuestros procesos y seguir construyendo un mejor ambiente laboral.
+        </p>
+
+        <h2 style="color:#16a34a; margin-top:25px;">
+          ¡Gracias por colaborar en la mejora continua de Distribución G&D!
+        </h2>
+
+        <button id="btnVolverInicio" class="btn btn-primary" type="button" style="margin-top:30px;">
+          Volver al inicio de sesión
+        </button>
       </div>
     </div>
 

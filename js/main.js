@@ -36,6 +36,10 @@ import {
 
 const ADMIN_EMAIL = "rhdgardi@gmail.com";
 
+const accessPanel = document.getElementById("accessPanel");
+const graciasPanel = document.getElementById("graciasPanel");
+const btnVolverInicio = document.getElementById("btnVolverInicio");
+
 const surveyForm = document.getElementById("surveyForm");
 const surveyPanel = document.getElementById("surveyPanel");
 const adminPanel = document.getElementById("adminPanel");
@@ -70,6 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
     onLogin: async (user) => {
       modoAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
+      graciasPanel?.classList.add("hidden");
+      accessPanel?.classList.remove("hidden");
+      surveyPanel?.classList.remove("hidden");
       surveyForm.classList.remove("hidden");
 
       if (modoAdmin) {
@@ -80,23 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     onLogout: () => {
-      perfilUsuario = null;
-      modoAdmin = false;
-
-      surveyForm.classList.add("hidden");
-      adminPanel.classList.add("hidden");
-      surveyPanel.classList.remove("hidden");
-
-      btnDashboard?.classList.add("hidden");
-      btnFormulario?.classList.add("hidden");
-
-      questionSections.innerHTML = "";
-      wizardProgress.innerHTML = "";
-
-      if (dashboardContent) dashboardContent.innerHTML = "";
-
-      limpiarDatosGenerales();
-      ocultarEstado(formStatus);
+      reiniciarVistaInicio();
     }
   });
 
@@ -106,7 +97,54 @@ document.addEventListener("DOMContentLoaded", () => {
   btnAnterior.addEventListener("click", regresarPaso);
   btnSiguiente.addEventListener("click", avanzarPaso);
   btnFinalizar.addEventListener("click", finalizarEvaluacion);
+
+  btnVolverInicio?.addEventListener("click", () => {
+    reiniciarVistaInicio();
+  });
 });
+
+function reiniciarVistaInicio() {
+  perfilUsuario = null;
+  modoAdmin = false;
+
+  graciasPanel?.classList.add("hidden");
+  accessPanel?.classList.remove("hidden");
+
+  surveyForm?.classList.add("hidden");
+  adminPanel?.classList.add("hidden");
+  surveyPanel?.classList.remove("hidden");
+
+  btnDashboard?.classList.add("hidden");
+  btnFormulario?.classList.add("hidden");
+
+  questionSections.innerHTML = "";
+  wizardProgress.innerHTML = "";
+
+  if (dashboardContent) dashboardContent.innerHTML = "";
+
+  limpiarDatosGenerales();
+  ocultarEstado(formStatus);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function mensajeDuplicado() {
+  return "No se pudo ingresar porque el número de trabajador ya se encuentra registrado. Ingrese el número correcto o contacte al área de Recursos Humanos o Sistemas.";
+}
+
+function esErrorDuplicado(error) {
+  const mensaje = String(error?.message || "").toLowerCase();
+
+  return (
+    mensaje.includes("duplicado") ||
+    mensaje.includes("ya existe") ||
+    mensaje.includes("ya tiene") ||
+    mensaje.includes("registrada") ||
+    mensaje.includes("registrado") ||
+    mensaje.includes("número de trabajador") ||
+    mensaje.includes("numero de trabajador")
+  );
+}
 
 function activarModoAdmin() {
   perfilUsuario = null;
@@ -134,6 +172,7 @@ function prepararBotonesAdmin() {
   if (!btnDashboard || !btnFormulario) return;
 
   btnDashboard.onclick = async () => {
+    graciasPanel?.classList.add("hidden");
     surveyPanel.classList.add("hidden");
     adminPanel.classList.remove("hidden");
 
@@ -144,6 +183,7 @@ function prepararBotonesAdmin() {
   };
 
   btnFormulario.onclick = () => {
+    graciasPanel?.classList.add("hidden");
     adminPanel.classList.add("hidden");
     surveyPanel.classList.remove("hidden");
 
@@ -289,7 +329,7 @@ Has seleccionado el puesto:
 
 ${puesto.value}
 
-Una vez confirmado, este puesto quedará registrado en tu cuenta de Google y NO podrás cambiarlo ni visualizar formularios de otros puestos.
+Una vez confirmado, este puesto quedará registrado en tu cuenta y NO podrás cambiarlo ni visualizar formularios de otros puestos.
 
 Número de trabajador: ${numeroTrabajador.value.trim()}
 Sucursal: ${sucursal.value}
@@ -304,6 +344,21 @@ Sucursal: ${sucursal.value}
   }
 
   try {
+    const yaExiste = await existeEvaluacion(
+      numeroTrabajador.value.trim(),
+      sucursal.value,
+      puesto.value,
+      usuario.uid,
+      usuario.email
+    );
+
+    if (yaExiste) {
+      mostrarEstado(formStatus, "warning", mensajeDuplicado());
+      puesto.value = "";
+      numeroTrabajador.focus();
+      return;
+    }
+
     await guardarPerfilUsuario(usuario.uid, {
       email: usuario.email,
       numeroTrabajador: numeroTrabajador.value.trim(),
@@ -328,7 +383,20 @@ Sucursal: ${sucursal.value}
 
   } catch (error) {
     console.error(error);
-    mostrarEstado(formStatus, "error", "No se pudo confirmar el puesto. Revisa permisos de Firestore.");
+
+    if (esErrorDuplicado(error)) {
+      mostrarEstado(formStatus, "warning", mensajeDuplicado());
+      puesto.value = "";
+      numeroTrabajador.focus();
+      return;
+    }
+
+    mostrarEstado(
+      formStatus,
+      "error",
+      "No se pudo ingresar. Inténtelo nuevamente o contacte al área de Recursos Humanos o Sistemas."
+    );
+
     puesto.value = "";
   }
 }
@@ -489,11 +557,12 @@ async function finalizarEvaluacion() {
       numeroTrabajador.value.trim(),
       sucursal.value,
       puesto.value,
-      usuario.uid
+      usuario.uid,
+      usuario.email
     );
 
     if (yaExiste) {
-      mostrarEstado(formStatus, "warning", "Ya existe una evaluación registrada con esta cuenta.");
+      mostrarEstado(formStatus, "warning", mensajeDuplicado());
       btnFinalizar.disabled = false;
       return;
     }
@@ -510,14 +579,28 @@ async function finalizarEvaluacion() {
 
     await guardarEvaluacionCompleta(data);
 
-    mostrarEstado(formStatus, "success", "Evaluación guardada correctamente.");
+    accessPanel?.classList.add("hidden");
+    surveyPanel?.classList.add("hidden");
+    adminPanel?.classList.add("hidden");
+    graciasPanel?.classList.remove("hidden");
 
-    btnFinalizar.disabled = true;
-    btnAnterior.disabled = true;
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
   } catch (error) {
     console.error(error);
-    mostrarEstado(formStatus, "error", "Ocurrió un error al guardar la evaluación.");
+
+    if (esErrorDuplicado(error)) {
+      mostrarEstado(formStatus, "warning", mensajeDuplicado());
+      btnFinalizar.disabled = false;
+      return;
+    }
+
+    mostrarEstado(
+      formStatus,
+      "error",
+      "Ocurrió un error al guardar la evaluación. Inténtelo nuevamente o contacte al área de Recursos Humanos o Sistemas."
+    );
+
     btnFinalizar.disabled = false;
   }
 }
