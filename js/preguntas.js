@@ -191,7 +191,98 @@ export const PREGUNTAS = {
       { id: 16, competencia: "Resultados", texto: "El desempeño de la Gerencia Administrativa favorece el cumplimiento de los objetivos organizacionales." }
     ]
   },
+CONTADOR_GENERAL: {
+  titulo: "Contador General",
+  descripcion: "Evalúa la atención, comunicación, seguimiento, disponibilidad, orientación y apoyo brindado por el Contador General a las diferentes áreas de la empresa.",
 
+  preguntas: [
+
+    {
+      id: 1,
+      competencia: "Atención",
+      texto: "El Contador General brinda atención oportuna cuando se le solicita apoyo."
+    },
+
+    {
+      id: 2,
+      competencia: "Atención",
+      texto: "Muestra disposición para atender dudas o necesidades relacionadas con su área."
+    },
+
+    {
+      id: 3,
+      competencia: "Comunicación",
+      texto: "La comunicación que mantiene es clara y fácil de comprender."
+    },
+
+    {
+      id: 4,
+      competencia: "Comunicación",
+      texto: "Explica adecuadamente los procedimientos o la información que proporciona."
+    },
+
+    {
+      id: 5,
+      competencia: "Seguimiento",
+      texto: "Da seguimiento a las solicitudes hasta su conclusión."
+    },
+
+    {
+      id: 6,
+      competencia: "Seguimiento",
+      texto: "Mantiene informados a los colaboradores sobre el avance de los asuntos pendientes."
+    },
+
+    {
+      id: 7,
+      competencia: "Disponibilidad",
+      texto: "Está disponible para brindar apoyo cuando se requiere, aun cuando la atención sea a distancia."
+    },
+
+    {
+      id: 8,
+      competencia: "Disponibilidad",
+      texto: "Responde en un tiempo adecuado a llamadas, mensajes o correos relacionados con el trabajo."
+    },
+
+    {
+      id: 9,
+      competencia: "Servicio",
+      texto: "Brinda un trato respetuoso y profesional durante la atención."
+    },
+
+    {
+      id: 10,
+      competencia: "Servicio",
+      texto: "Genera confianza para consultar dudas relacionadas con procesos contables o administrativos."
+    },
+
+    {
+      id: 11,
+      competencia: "Apoyo",
+      texto: "Las orientaciones o indicaciones proporcionadas ayudan a resolver las necesidades planteadas."
+    },
+
+    {
+      id: 12,
+      competencia: "Apoyo",
+      texto: "Muestra disposición para colaborar con las diferentes áreas de la empresa."
+    },
+
+    {
+      id: 13,
+      competencia: "Resultados",
+      texto: "Su apoyo contribuye al buen funcionamiento de las actividades administrativas y operativas."
+    },
+
+    {
+      id: 14,
+      competencia: "Resultados",
+      texto: "En general, estoy satisfecho(a) con la atención y el servicio brindado por el Contador General."
+    }
+
+  ]
+},
   GERENCIA_VENTAS: {
     titulo: "Gerencia de Ventas",
     descripcion: "Evalúa liderazgo comercial, comunicación, seguimiento, estrategia, apoyo a sucursales y resultados.",
@@ -214,10 +305,20 @@ export const PREGUNTAS = {
   }
 };
 
+
 export const PREGUNTAS_ABIERTAS = [
-  { id: "fortalezas", texto: "¿Qué fortalezas identificas en las áreas evaluadas?" },
-  { id: "mejoras", texto: "¿Qué oportunidades de mejora consideras importantes?" },
-  { id: "recomendaciones", texto: "¿Qué acciones propondrías para fortalecer el desempeño de estas áreas?" }
+  {
+    id: "experiencia",
+    texto: "¿Cómo ha sido tu experiencia trabajando en la empresa? "
+  },
+  {
+    id: "mejoras",
+    texto: "¿Qué aspectos consideras que la empresa podría mejorar para brindar un mejor ambiente de trabajo y favorecer el desarrollo de los colaboradores?"
+  },
+  {
+    id: "comentarios_adicionales",
+    texto: "Comentarios adicionales (opcional): Este es un espacio libre para expresar cualquier opinión, sugerencia, reconocimiento, inquietud o situación que desees compartir."
+  }
 ];
 
 export function obtenerPreguntas(areaKey) {

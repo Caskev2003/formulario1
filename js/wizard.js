@@ -7,8 +7,13 @@ let areas = [];
 let pasoActual = 0;
 let respuestasWizard = {};
 
+const PASO_COMENTARIOS = "COMENTARIOS_FINALES";
+
 export function iniciarWizard(puestoEvaluador, sucursal = "") {
   areas = obtenerAreasPorPuesto(puestoEvaluador, sucursal);
+
+  areas.push(PASO_COMENTARIOS);
+
   pasoActual = 0;
   respuestasWizard = {};
 
@@ -27,11 +32,25 @@ export function obtenerPasoActual() {
 
   if (!areaKey) return null;
 
+  if (areaKey === PASO_COMENTARIOS) {
+    return {
+      pasoActual,
+      totalPasos: areas.length,
+      areaKey,
+      areaNombre: "Comentarios finales",
+      tipo: "comentarios",
+      preguntas: null,
+      respuestas: respuestasWizard[areaKey]?.respuestas || {},
+      completado: respuestasWizard[areaKey]?.completado || false
+    };
+  }
+
   return {
     pasoActual,
     totalPasos: areas.length,
     areaKey,
     areaNombre: obtenerNombreArea(areaKey),
+    tipo: "area",
     preguntas: obtenerPreguntas(areaKey),
     respuestas: respuestasWizard[areaKey]?.respuestas || {},
     completado: respuestasWizard[areaKey]?.completado || false
@@ -84,7 +103,10 @@ export function obtenerProgreso() {
     areas: areas.map((area, index) => ({
       index,
       areaKey: area,
-      nombre: obtenerNombreArea(area),
+      nombre: area === PASO_COMENTARIOS
+        ? "Comentarios finales"
+        : obtenerNombreArea(area),
+      tipo: area === PASO_COMENTARIOS ? "comentarios" : "area",
       activo: index === pasoActual,
       completado: respuestasWizard[area]?.completado || false
     }))
@@ -103,4 +125,8 @@ export function reiniciarWizard() {
   areas = [];
   pasoActual = 0;
   respuestasWizard = {};
+}
+
+export function obtenerKeyComentariosFinales() {
+  return PASO_COMENTARIOS;
 }

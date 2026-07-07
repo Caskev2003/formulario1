@@ -29,7 +29,10 @@ export const EVALUACIONES_POR_PUESTO = {
 
   "CAJERO/A": [
     "GERENTE",
-    "SISTEMAS"
+    "SISTEMAS",
+    "MARKETING",
+    "COMPRAS"
+
   ],
 
   ADMINISTRATIVO: [
@@ -43,7 +46,8 @@ export const EVALUACIONES_POR_PUESTO = {
 
   CONTABILIDAD: [
     "GERENCIA_ADMINISTRATIVA",
-    "GERENCIA_VENTAS"
+    "GERENCIA_VENTAS",
+    "CONTADOR_GENERAL"
   ]
 };
 
@@ -85,7 +89,9 @@ export const AREAS_LABELS = {
   JEFE_OPERACIONES: "Jefe de Operaciones",
 
   GERENCIA_ADMINISTRATIVA: "Gerencia Administrativa",
-  GERENCIA_VENTAS: "Gerencia de Ventas"
+  GERENCIA_VENTAS: "Gerencia de Ventas",
+  CONTADOR_GENERAL:"Contador General"
+  
 };
 
 export function obtenerAreasPorPuesto(puesto, sucursal = "") {
